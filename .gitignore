@@ -1,0 +1,48 @@
+# --- environment and python mechanics ---
+.venv/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# --- jupyter notebooks ---
+.ipynb_checkpoints/
+
+# --- OS specific junk files (mac v windows/wsl) ---
+# mac generates thesse every time I open a folder in finder
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- windows generates these when viewing folders ---
+Thumbs.db
+Desktop.ini
+
+# --- Machine Learning: Data and Large Outputs ---
+# datasets (prevent accidentally pushing giant CSVs or databases)
+*.csv
+*.dat
+*.parquet
+*.hdf5
+*.zip
+data/
+datasets/
+dataset/
+images/
+
+# PyTorch model weights and checkpoints
+*.pt
+*.pth
+*.ckpt
+
+# experiment logs (ray, tune, tensorboard, etc)
+ray_results/
+runs/
+tb_logs/
+wandb/
+*.tfevents.*
+
+# --- IDE Configurations ---
+# prevents syncing personal UI settings across machines
+.vscode/
