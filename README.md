@@ -1,4 +1,4 @@
-# ML III Group Project
+# ML III Group Project: Team Toothless!
 
 Welcome to the project! 
 
