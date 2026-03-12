@@ -11,7 +11,9 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 
 ## 📅 Milestones
 *The high-level phases of the project.*
-
+- [ ] **Phase 0: Research and Proposal** (Submit proposal: 2026-03-13)
+  - Finish proposal doc
+  - Submit on canvas
 - [ ] **Phase 1: Infrastructure & Data Ingestion** (Target: YYYY-MM-DD)
   - Set up Git and `uv` environment.
   - Source and download raw datasets.
@@ -31,6 +33,7 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 *Move tasks from To Do -> In Progress -> Done as we work. Assign names to avoid duplicated effort.*
 
 ### 🔴 To Do
+- [ ] **Proposal Draft:** Write proposal document (@Name)
 - [ ] **Data:** Write extraction script for raw data (@Name)
 - [ ] **Docs:** Outline the introduction and methodology sections (@Name)
 - [ ] **Task:** [Add specific task here] (@Name)
