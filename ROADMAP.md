@@ -39,12 +39,11 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 - [ ] **Task:** [Add specific task here] (@Name)
 
 ### 🟡 In Progress
-- [ ] **Setup:** Finalize `README.md` and verify `uv sync` works on all OS (@Name)
 
 ### 🟢 Done
 - [x] **Setup:** Initialize Git, `.gitignore`, and `pyproject.toml`
 - [x] **Admin:** Form group and finalize project scope
-
+- [X] **Setup:** Finalize `README.md` and verify `uv sync` works on all OS 
 ---
 
 ## 🧊 Backlog / The Icebox
