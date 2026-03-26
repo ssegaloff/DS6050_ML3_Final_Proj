@@ -11,7 +11,7 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 
 ## 📅 Milestones
 *The high-level phases of the project.*
-- [ ] **Phase 0: Research and Proposal** (Submit proposal: 2026-03-13)
+- [X] **Phase 0: Research and Proposal** (Submit proposal: 2026-03-13)
   - Finish proposal doc
   - Submit on canvas
 - [ ] **Phase 1: Infrastructure & Data Ingestion** (Target: YYYY-MM-DD)
@@ -33,17 +33,21 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 *Move tasks from To Do -> In Progress -> Done as we work. Assign names to avoid duplicated effort.*
 
 ### 🔴 To Do
-- [ ] **Proposal Draft:** Write proposal document (@Name)
-- [ ] **Data:** Write extraction script for raw data (@Name)
-- [ ] **Docs:** Outline the introduction and methodology sections (@Name)
+- [ ] **Data:** Write extraction script for raw data (@Chloe)
+- [ ] **Screenshots:** Get screenshots of data having been loaded for checkpoint (@Name)
+- [ ] **Model:** [YOLO26 model] (@Ryan)
+- [ ] **Baseline Model:** [Efficientnet model] (@Mason)
+- [ ] **Test model:** [Pass a subset of data through a model] (@Name)
 - [ ] **Task:** [Add specific task here] (@Name)
+
 
 ### 🟡 In Progress
 
 ### 🟢 Done
 - [x] **Setup:** Initialize Git, `.gitignore`, and `pyproject.toml`
 - [x] **Admin:** Form group and finalize project scope
-- [X] **Setup:** Finalize `README.md` and verify `uv sync` works on all OS 
+- [X] **Setup:** Finalize `README.md` and verify `uv sync` works on all OS
+- [X] **Proposal Draft:** Write proposal document
 ---
 
 ## 🧊 Backlog / The Icebox
@@ -58,4 +62,4 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 *A quick record of structural choices.*
 
 * **[2026-02-27]:** Decided to use `uv` for dependency management to ensure cross-platform compatibility without WSL.
-* **[YYYY-MM-DD]:** [e.g., Decided to drop Dataset B due to inconsistent schemas.]
+* **[2026-03-26]:** Decided to use EfficientNet as baseline model. Will be using YOLO26 for main model.
