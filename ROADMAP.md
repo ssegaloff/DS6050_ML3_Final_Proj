@@ -35,7 +35,7 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 ### 🔴 To Do
 - [ ] **Screenshots:** Get screenshots of data having been loaded for checkpoint (@Name)
 - [ ] **Test model:** [Pass a subset of data through a model] (@Name)
-- [ ] **Task:** [Add specific task here] (@Name)
+- [ ] **Engineering:** Further clean data (@Name)
 
 ### 🟡 In Progress
 - [ ] **Data:** Write extraction script for raw data (@Chloe)
