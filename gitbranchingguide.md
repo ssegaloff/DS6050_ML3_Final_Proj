@@ -36,7 +36,7 @@ To work on the project, activate the virtual environment so your terminal uses t
 When you sit down to work, follow this cycle to keep your work in sync with the group.
 
 ### Step 1 — Sync with the team first
-Before writing a single line of code, pull the latest version of `main` so you're starting from the most up-to-date codebase.
+Before writing code, pull the latest version of `main` so you're starting from the most up-to-date codebase.
 
 ```bash
 git checkout main
@@ -49,7 +49,7 @@ uv sync
 ```
 
 ### Step 2 — Create a branch for your work
-**Never commit directly to `main`.** Instead, create a feature branch. Suggestion: name it with a short category prefix so it's easy to understand at a glance:
+Rather than directly commiting to main `main`, create a feature branch.Consider naming it with a short category prefix so it's easy to understand at a glance:
 
 - `feat/` — new code, models, or pipeline stages (e.g., `feat/add-demographic-parser`)
 - `fix/` — bug fixes (e.g., `fix/matrix-dimension-error`)
@@ -81,13 +81,13 @@ After that, a plain `git push` is enough.
 ### Step 6 — Open a Pull Request (PR) on GitHub
 When your feature is done and tested, go to GitHub. You'll see a prompt to **"Compare & pull request"** — click it, write a short description of what you did, and tag a teammate to review it. Once approved, click **Merge Pull Request** and delete your feature branch on GitHub.
 
-> **Tip:** Merge early and often. Smaller PRs mean fewer conflicts and faster reviews.
+> **Suggestion:** Merge early and often. Smaller pull requests mean fewer conflicts and faster reviews.
 
 ---
 
 ## 🔀 3. Staying in Sync Mid-Work
 
-If a teammate merges a big change into `main` while you're still working on your branch, pull their changes in so you don't end up with a massive conflict at the end.
+If a teammate merges a big change into `main` while you're still working on your branch, you can pull their changes in so you don't end up with a massive conflict later.
 
 ```bash
 # While on your feature branch:
@@ -100,7 +100,7 @@ If `pyproject.toml` or `uv.lock` changed, run `uv sync` afterward too. If Git fl
 
 ## 🧩 4. Resolving Merge Conflicts
 
-If Git says "Automatic merge failed," don't panic — this just means two people edited the same part of a file. Open the conflicting file in your editor and you'll see markers like this:
+If Git says "Automatic merge failed," this means two people edited the same part of a file. Open the conflicting file in your editor and you'll see markers like this:
 
 ```python
 <<<<<<< HEAD
@@ -123,7 +123,7 @@ git add <filename>
 git commit -m "resolve: merge conflict in cleaning script"
 ```
 
-> **Note:** Conflicts can also happen in `pyproject.toml` or `uv.lock` if two people added packages at the same time. They look scarier, but you resolve them exactly the same way. When in doubt, ask in the group chat before guessing.
+> **Note:** Conflicts can also happen in `pyproject.toml` or `uv.lock` if two people added packages at the same time. We can resolve these in the same way.
 
 ---
 
