@@ -14,7 +14,7 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 - [X] **Phase 0: Research and Proposal** (Submit proposal: 2026-03-13)
   - Finish proposal doc
   - Submit on canvas
-- [ ] **Phase 1: Infrastructure & Data Ingestion** (Target: YYYY-MM-DD)
+- [ ] **Phase 1: Infrastructure & Data Ingestion** (Target: 2026-03-27)
   - Set up Git and `uv` environment.
   - Source and download raw datasets.
 - [ ] **Phase 2: Cleaning & Exploratory Analysis** (Target: YYYY-MM-DD)
@@ -33,16 +33,14 @@ I made this with an LLM just to get a structure down and then made a few edits/c
 *Move tasks from To Do -> In Progress -> Done as we work. Assign names to avoid duplicated effort.*
 
 ### 🔴 To Do
-- [ ] **Data:** Write extraction script for raw data (@Chloe)
 - [ ] **Screenshots:** Get screenshots of data having been loaded for checkpoint (@Name)
-- [ ] **Model:** [YOLO26 model] (@Ryan)
-- [ ] **Baseline Model:** [Efficientnet model] (@Mason)
 - [ ] **Test model:** [Pass a subset of data through a model] (@Name)
 - [ ] **Task:** [Add specific task here] (@Name)
 
-
 ### 🟡 In Progress
-
+- [ ] **Data:** Write extraction script for raw data (@Chloe)
+- [ ] **Model:** [YOLO26 model] (@Ryan and Sabine)
+- [ ] **Baseline Model:** [EfficientNet model] (@Mason)
 ### 🟢 Done
 - [x] **Setup:** Initialize Git, `.gitignore`, and `pyproject.toml`
 - [x] **Admin:** Form group and finalize project scope
