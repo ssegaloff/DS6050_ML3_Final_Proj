@@ -69,8 +69,7 @@ results = model.train(
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
     device = device,        # explicitly pass GPU/CPU
     workers = NUM_WORKERS,  # from hardware acceleration above
-    cache = "disk",         # cache images in disk for faster epoch times (deterministic alternative to ram caching)
-    amp = True              # automatic mixed precision
+    cache = False,         # # disk is fast enough; saves 136GB
 )
 
 print(f"Best weights saved to: {model.trainer.best}")
