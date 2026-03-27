@@ -39,7 +39,7 @@ else:
 DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
 MODEL_SIZE = "l"        # n, s, m, l, x
-EPOCHS = 50
+EPOCHS = 10
 IMG_SIZE = 640          
 BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
@@ -69,7 +69,7 @@ results = model.train(
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
     device = device,        # explicitly pass GPU/CPU
     workers = NUM_WORKERS,  # from hardware acceleration above
-    cache = True,           # cache images in RAM for faster epoch times
+    cache = "disk",         # cache images in disk for faster epoch times (deterministic alternative to ram caching)
     amp = True              # automatic mixed precision
 )
 
