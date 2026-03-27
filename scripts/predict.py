@@ -1,4 +1,5 @@
 import torch
+from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
 
@@ -14,7 +15,8 @@ else:
 MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt")
 SOURCE = Path("data/raw/test/images")
 CONF_THRESHOLD = 0.25
-RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip()
+default = datetime.now().strftime("%Y%m%d_%H%M%S")
+RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 
 # verify model exists
 if not MODEL_PATH.exists():

@@ -1,6 +1,7 @@
 # TODO: COMPLETE THIS SCRIPT AND MAKE UPDATES NEEDED
 
 import os
+from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
 import torch
@@ -43,7 +44,8 @@ EPOCHS = 10
 IMG_SIZE = 640          
 BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
-RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip()
+default = datetime.now().strftime("%Y%m%d_%H%M%S")
+RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 
 # verify data exists
 if not YAML_PATH.exists():
