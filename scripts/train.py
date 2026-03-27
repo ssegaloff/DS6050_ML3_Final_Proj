@@ -9,7 +9,7 @@ from ultralytics import YOLO
 DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
 MODEL_SIZE = "l"        # n, s, m, l, x
-EPOCHS = 100
+EPOCHS = 10
 IMG_SIZE = 640          
 BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
