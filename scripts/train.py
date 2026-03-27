@@ -43,7 +43,7 @@ EPOCHS = 10
 IMG_SIZE = 640          
 BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
-RUN_NAME = "shark_v2"   # name of the run
+RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip()
 
 # verify data exists
 if not YAML_PATH.exists():

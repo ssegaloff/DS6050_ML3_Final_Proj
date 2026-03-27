@@ -14,8 +14,9 @@ else:
 MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt")
 SOURCE = Path("data/raw/test/images")
 CONF_THRESHOLD = 0.25
-RUN_NAME = "shark_v1_predict"
+RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip()
 
+# verify model exists
 if not MODEL_PATH.exists():
     raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
 
