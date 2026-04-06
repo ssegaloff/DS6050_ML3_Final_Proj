@@ -49,7 +49,7 @@ model = YOLO(str(MODEL_PATH))
 
 # --- execute validation ---
 print(f"Running validation on '{SPLIT}' split...")
-metrics = model.val(
+metrics = model.val(# TODO: FILL IN THE REST OF THE ARGUMENTS HERE
 )
 
 # --- output results ---
