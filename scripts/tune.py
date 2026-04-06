@@ -51,8 +51,9 @@ print("Starting Hyperparameter Tuning...")
 # The .tune() method wraps the standard .train() loop but runs it multiple times.
 model.tune(
     data = str(DATA_YAML),
-    # TODO: Decide on your tuning boundaries
+    # TODO: Decide on tuning boundaries
     epochs = 10,        # How long each mutant model lives (keep this relatively short, e.g., 10-15)
+    # note that short epochs may give fast but noisy signal so may want to increase the number of iterations to compensate
     iterations = 30,    # How many generations/mutations to try (at least 30 is recommended)
     optimizer = 'MuSGD',
     device = device_arg,
