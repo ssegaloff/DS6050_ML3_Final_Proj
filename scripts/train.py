@@ -39,6 +39,7 @@ else:
 # TODO: CHANGE / DECIDE ON THESE PARAMETERS (everything is currently a placeholder)
 DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
+SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
 EPOCHS = 10
 IMG_SIZE = 640          
@@ -46,6 +47,7 @@ BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
+OPTIMIZER = "MuSGD" # SGD with Muon-sytle orthagonalized updates
 
 # verify data exists
 if not YAML_PATH.exists():
@@ -60,9 +62,11 @@ model = YOLO(f"yolo26{MODEL_SIZE}.pt")
 # --- training loop ---
 results = model.train(
     data = str(YAML_PATH),
+    seed = SEED,
     epochs = EPOCHS,
     imgsz = IMG_SIZE,
     batch = BATCH_SIZE,
+    optimizer = OPTIMIZER,
     lr0 = 0.001,            # @TODO? want a lower LR for fine tuning (currently ignored by ultralytics since i haven't set optimizer)
     freeze = FREEZE,        
     patience = 10,          # early stopping if validation loss plateaus
@@ -71,6 +75,7 @@ results = model.train(
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
     device = device,        # explicitly pass GPU/CPU
     workers = NUM_WORKERS,  # from hardware acceleration above
+    verbose = True,         # print training progress to console
     cache = False,         # # disk is fast enough; saves 136GB
 )
 
