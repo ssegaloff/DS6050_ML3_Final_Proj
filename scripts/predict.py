@@ -23,7 +23,7 @@ if not MODEL_PATH.exists():
     raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
 
 # --- initialize model ---
-model = YOLO("runs/detect/shark_v1/weights/best.pt")
+model = YOLO(MODEL_PATH)
 
 results = model.predict(
     source = str(SOURCE),
