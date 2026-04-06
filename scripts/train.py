@@ -48,7 +48,7 @@ BATCH_SIZE = 16
 FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine tuning the whole network; freeze backbone layers for transfer learning
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
-OPTIMIZER = "MuSGD" # SGD with Muon-sytle orthagonalized updates
+OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 
 # verify data exists
 if not YAML_PATH.exists():
@@ -68,13 +68,13 @@ results = model.train(
     imgsz = IMG_SIZE,
     batch = BATCH_SIZE,
     optimizer = OPTIMIZER,
-    lr0 = 0.001,            # @TODO? want a lower LR for fine tuning (currently ignored by ultralytics since i haven't set optimizer)
+    lr0 = 0.001,            # @TODO? want a lower LR for fine tuning
     freeze = FREEZE,        
     patience = 10,          # early stopping if validation loss plateaus
     augment = False,         # since we did not augment during roboflow export, may want to do
     name = RUN_NAME,
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
-    device = device,        # explicitly pass GPU/CPU
+    device = device_arg,        # explicitly pass GPU/CPU
     workers = NUM_WORKERS,  # from hardware acceleration above
     verbose = True,         # print training progress to console
     cache = False,         # # disk is fast enough; saves 136GB
