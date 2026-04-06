@@ -1,3 +1,6 @@
+# TODO: update / fix as needed
+
+import os
 from pathlib import Path
 from ultralytics import YOLO
 import torch
@@ -40,7 +43,7 @@ if not DATA_YAML.exists():
 # For tuning, we may want to use a smaller model (like 'n' or 's') 
 # to save compute, assuming the hyperparameters will roughly transfer to 'l'.
 # If we have massive GPU power, we can tune directly on 'yolov8l.pt'.
-model = YOLO("yolov26l.pt") 
+model = YOLO("yolo26l.pt") 
 
 # --- Execute the Evolution ---
 print("Starting Hyperparameter Tuning...")
