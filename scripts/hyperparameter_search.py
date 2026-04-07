@@ -246,6 +246,9 @@ def find_actual_run_dir(results_dir: Path, run_idx: int, name: str) -> Path:
     """
     prefix = f"{run_idx:02d}_{name}"
     candidates = sorted(results_dir.glob(f"{prefix}*"), reverse=True)
+    for d in candidates:
+        if (d / "best_hyperparameters.yaml").exists(): # checks each dir for the yaml
+            return d
     return candidates[0] if candidates else results_dir / prefix
  
  
