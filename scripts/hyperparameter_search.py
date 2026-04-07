@@ -1,23 +1,40 @@
 '''
 hyperparameter_search.py
 
-Runs a sweep of Ultralytics YOLO .tune() experiments with different configurations.
+Runs a two-stage sweep of Ultralytics YOLO .tune() experiments using MuSGD,
+    tuning only the highest-impact hyperparameters to keep total run time managable.
 
-Each experiment varies the tune() meta-parameters (optimizer, epochs, iterations) 
-    and the hyperparameters (learning rate, augmentation, batch, etc.).
+All experiments use yolo26.pt for speed;
+    The best hyperparameters transfer to yolo28l.pt for final training.
 
-Results from al experiments are written to a timestamped master CSV for comparison,
-and printed to the console as each run completes.
+Results from each experiment are written to a timestamped master CSV as they complete,
+    and a summary is printed to the console.
 
-Usage:
-    # Run all experiments:
+Experiments:
+    1. core_musgd: Fast first pass. Tunes the 5 most important MuSGD paramters:
+        lr0, lrf, momentum, weight_decay, mosaic
+        ~10 epochs x 20 iteractions = 200 total training epochs ≈ 2–3 hours on yolo26s.pt
+    2. broad_musgd: Comprehensive second pass. Extends core_musgd with drone_aware augmentation params
+        (degrees, scale, flips, hsv).
+        ~10 epochs x 30 iterations = 300 total training epochs ≈ 4–6 hours on yolo26s.pt
+        Before runnning, paste tightened LR ranges from --recommend output into broad_musgd space dict.
+
+Typical Workflow:
+    # Step 1 - fast first pass:
+    python hyperparameter_search.py --experiments core_musgd
+
+    # Step 2 - read results and get recommended config for tune.py / train.py:
+    python hyperparameter_search.py --recommend tune_sweep_results/sweep_YYYYMMDD_HHMMSS.csv
+
+    # Step 3 - paste tightened LR ranges into broad_musgd space dict in this file, then run comprehensive second pass:
+    python hyperparameter_search.py --experiments broad_musgd
+
+Other options: 
+    # Print the experiment plan without running any training:
+    python hyperparameter_search.py --dry-run
+
+    # Run both experiments in sequence (default):
     python hyperparameter_search.py
-
-    #Run a specific experiment by name:
-    python hyperparameter_search.py --experiments lr_adam augmentation broad_adamw
-
-    # Print experiement paln wihtout training:
-    python hyperparameter_search.py -- dry-run
 '''
 
 import os
@@ -164,7 +181,7 @@ CSV_FIELDS = [
     'duration_minutes',
     'status', # "success" | "failed"
     "error", 
-    
+
     # Best hyperparameters recovered from Ultralytics output
     'best_fitness',
     'best_lr0',
