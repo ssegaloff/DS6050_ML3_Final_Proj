@@ -61,7 +61,7 @@ print(f"Device: {device} | Workers: {NUM_WORKERS} | CUDA: {IS_CUDA}")
 
 # Paths
 DATA_YAML = Path('../DS6050_ML3_Final_Proj/data/raw/data.yaml')
-MODEL_WEIGHTS = "yolo26l.pt" # Using the same model for tuning to ensure hyperparameters are optimized for the final model
+MODEL_WEIGHTS = "yolo26s.pt"
 RESULTS_DIR = Path("tune_sweep_results")
 RESULTS_CSV = RESULTS_DIR / f"sweep_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
 
@@ -80,32 +80,15 @@ RESULTS_CSV = RESULTS_DIR / f"sweep_{datetime.now().strftime('%Y%m%d_%H%M%S')}.c
 #               Values outside the Ultralytics default space are noted inline
 #
 # Notes:
-#   - The 'auto' optimizer lets Ultralytics choose the best optimizer for each mutant model, which can lead to better results but less control.
 #   - 'batch' and 'imgsz' in 'space' require Ultralytics >= 8.1; remove them if you hit an "unexpected keyword" error on older versions.
 #   - Aumentation params (flipud, fliplr, degrees, etc.) are drone-image-aware:
 #        sharks can appear at any orientation in aeiral footage, so wider ranges than the Ultralytics defaults are intentional
-#   - The 'broad_adamw' experiment is the most thorough - run it last or schedule it overnight, as epochs = 15 x iterations = 50 = 750 total epochs!
+#   - The 'broad_musgd' experiment is the most thorough - run it last or schedule it overnight, as epochs = 15 x iterations = 50 = 750 total epochs!
 
 
 
 EXPERIMENTS = [
-    # 1. Learning rate sweep, Adam
-
-    {
-        "name": "lr_adam",
-        "description": "LR scehdule sweep with Adam -- good Adam baseline",
-        "optimizer": "Adam",
-        "epochs": 10,
-        "iterations": 30,
-        "space": {
-            'lr0': (1e-5, 1e-2), # initial LR
-            'lrf': (0.01, 0.5),   # final LR as a fraction of initial (Ultralytics default is 0.01, so this sweeps from 1% to 50% of the initial LR
-            'momentum': (0.90, 0.999), # beta1 for Adam
-            'weight_decay': (0.0, 1e-3) 
-        }
-    },
-
-    # 2. Learning Rate sweep MuSGD
+    # 1. Learning Rate sweep MuSGD
     {
         "name": "lr_musgd",
         "description": "LR schedule sweep with MuSGD",
@@ -113,29 +96,14 @@ EXPERIMENTS = [
         "epochs": 10,
         "iterations": 30,
         "space": {
-            'lr0': (1e-4, 1e-1), # # SGD typically needs a higher initial LR
+            'lr0': (1e-4, 1e-1), # SGD typically needs a higher initial LR
             'lrf': (0.01, 0.3),
             'momentum': (0.70, 0.98), # Nesterov momentum
             'weight_decay': (0.0, 5e-4) 
         }
     },
 
-    # 3. Learning rate sweep , AdamW
-    {
-        "name": "lr_adamw",
-        "description": "LR schedule sweep with AdamW - decoupled weight decay",
-        "optimizer": "AdamW",
-        "epochs": 10,
-        "iterations": 30,
-        "space": {
-            'lr0': (1e-5, 5e-3), 
-            'lrf': (0.01, 0.5), 
-            'momentum': (0.90, 0.999), # beta1
-            'weight_decay': (1e-5, 1e-2) # AdamW benefits from more weight decay
-        }
-    },
-
-    # 4. Augementation parameters
+    # 2. Augementation parameters
     {
         "name": "augmentation",
         "description": "Aerial-imagery augmentation sweep (drone-angle aware)",
@@ -157,7 +125,7 @@ EXPERIMENTS = [
         }
     },
 
-    # 5. Batch size and image resolution
+    # 3. Batch size and image resolution
     {
         "name": "batch_imgsize",
         "description": "Bath and image size sweep - hardware throughput vs. detail",
@@ -174,16 +142,16 @@ EXPERIMENTS = [
     # 6. Broad multi-axis sweep (recommended for final run)
 
     {
-        "name":        "broad_adamw",
-        "description": "Comprehensive sweep — LR + augmentation + AdamW (run overnight)",
-        "optimizer":   "AdamW",
+        "name":        "broad_musgd",
+        "description": "Comprehensive sweep — LR + augmentation + MuSGD (run overnight)",
+        "optimizer":   "MuSGD",
         "epochs":      15,   # slightly longer per trial for a more reliable signal
         "iterations":  50,   # 15 × 50 = 750 total training epochs
         "space": {
-            "lr0":          (1e-5,  1e-2),
+            "lr0":          (1e-4,  1e-1),
             "lrf":          (0.01,  0.3),
-            "momentum":     (0.85,  0.999),
-            "weight_decay": (1e-5,  1e-2),
+            "momentum":     (0.70,  0.98),
+            "weight_decay": (0.0,  5e-4),
             "degrees":      (0.0,   30.0),
             "scale":        (0.1,    0.8),
             "flipud":       (0.0,    0.5),
@@ -201,7 +169,7 @@ EXPERIMENTS = [
 
 CSV_FIELDS = [
     'experiment_name',
-    'desciption',
+    'description',
     'optimizer',
     'epochs',
     'iterations',
@@ -238,7 +206,7 @@ def parse_best_hyperparameters(tune_run_dir: Path) -> dict:
         print(f" [warn] best_hyperparameters.yaml not found in {tune_run_dir}")
         return {}
     with open(best_yaml) as f:
-        return yaml.afe_load(f) or {}
+        return yaml.safe_load(f) or {}
     
 
 def parse_best_fitness(tune_run_dir: Path) -> float | None:
@@ -288,6 +256,107 @@ def write_csv_row(row: dict, first_row: bool = False) -> None:
             writer.writeheader()
         writer.writerow(row)
 
+def recommend_config(csv_path: Path) -> None:
+    """
+    Read a sweep results CSV and print the recommended tune.py config for a final training run on yolo26l.pt
+
+    The recommendation is based on the highest-fitness successful experiment.
+    LR/momentum search space bounds for broad_musgd are also tighened around the best values, to focus any further tuning.
+
+    Usage:
+        python hyperparameter_search.py --recommend tune_sweep_results/sweep_YYYYMMDD_HHMMSS.csv
+    """
+    if not csv_path.exists():
+        print(f"[error] CSV not found: {csv_path}")
+        return
+ 
+    with open(csv_path, newline="") as f:
+        rows = [r for r in csv.DictReader(f) if r.get("status") == "success"]
+ 
+    if not rows:
+        print("[error] No successful experiments found in the CSV.")
+        return
+ 
+    def fitness_key(r):
+        try:
+            return float(r["best_fitness"])
+        except (ValueError, TypeError):
+            return -1.0
+
+    # Sort all rows so we can show the full ranking
+    ranked = sorted(rows, key=fitness_key, reverse=True)
+    best   = ranked[0]
+ 
+    # Helper: parse a float from the CSV, return None if missing/blank
+    def f(key):
+        v = best.get(key, "").strip()
+        try:
+            return float(v)
+        except (ValueError, TypeError):
+            return None
+ 
+    best_lr0   = f("best_lr0")
+    best_lrf   = f("best_lrf")
+    best_mom   = f("best_momentum")
+    best_wd    = f("best_weight_decay")
+    best_batch = f("best_batch")
+    best_imgsz = f("best_imgsz")
+ 
+    # Tighten LR/momentum bounds to +-30% around the best value found,
+    # clamped to sensible min/max limits — useful if you want to run a follow-up broad sweep with a narrower search space.
+    def tighten(val, pct=0.30, lo=0.0, hi=1.0):
+        if val is None:
+            return None, None
+        margin = val * pct
+        return round(max(lo, val - margin), 8), round(min(hi, val + margin), 8)
+ 
+    lr0_lo,  lr0_hi  = tighten(best_lr0,  pct=0.30, lo=1e-6, hi=0.1)
+    lrf_lo,  lrf_hi  = tighten(best_lrf,  pct=0.30, lo=0.01, hi=1.0)
+    mom_lo,  mom_hi  = tighten(best_mom,  pct=0.05, lo=0.6,  hi=0.999)
+    wd_lo,   wd_hi   = tighten(best_wd,   pct=0.50, lo=0.0,  hi=0.1)
+ 
+    W = 64
+    print(f"\n{'═' * W}")
+    print("  RECOMMENDED CONFIG  —  paste into tune.py / train.py")
+    print(f"{'═' * W}")
+    print(f"  Source CSV  : {csv_path}")
+    print(f"  Best exp    : {best['experiment_name']}  (fitness {best['best_fitness']})")
+    print()
+    print("  ── tune.py / train.py parameters ───────────────────────")
+    print(f"  model     = YOLO('yolo26l.pt')   # scale back up to large")
+    print(f"  optimizer = '{best['optimizer']}'")
+    if best_lr0   is not None: print(f"  lr0       = {best_lr0}")
+    if best_lrf   is not None: print(f"  lrf       = {best_lrf}")
+    if best_mom   is not None: print(f"  momentum  = {best_mom}")
+    if best_wd    is not None: print(f"  weight_decay = {best_wd}")
+    if best_batch is not None: print(f"  batch     = {int(best_batch)}")
+    if best_imgsz is not None: print(f"  imgsz     = {int(best_imgsz)}")
+    best_deg    = f("best_degrees")
+    best_mosaic = f("best_mosaic")
+    best_flipud = f("best_flipud")
+    best_fliplr = f("best_fliplr")
+    if best_deg    is not None: print(f"  degrees   = {best_deg}")
+    if best_mosaic is not None: print(f"  mosaic    = {best_mosaic}")
+    if best_flipud is not None: print(f"  flipud    = {best_flipud}")
+    if best_fliplr is not None: print(f"  fliplr    = {best_fliplr}")
+ 
+    if lr0_lo is not None:
+        print()
+        print("  ── Tightened space for a follow-up broad sweep ──────────")
+        print("  Paste into the 'broad_musgd' (or equivalent) space dict:")
+        print(f"  'lr0':          ({lr0_lo}, {lr0_hi}),")
+        print(f"  'lrf':          ({lrf_lo}, {lrf_hi}),")
+        print(f"  'momentum':     ({mom_lo}, {mom_hi}),")
+        print(f"  'weight_decay': ({wd_lo},  {wd_hi}),")
+ 
+    print()
+    print("  ── All experiments ranked by fitness ────────────────────")
+    print(f"  {'Rank':<5} {'Experiment':<25} {'Optimizer':<8} {'Fitness'}")
+    for i, r in enumerate(ranked, 1):
+        print(f"  {i:<5} {r['experiment_name']:<25} {r['optimizer']:<8} {r['best_fitness']}")
+ 
+    print(f"{'═' * W}\n")
+
 
 
 # Core experiment runner
@@ -300,19 +369,19 @@ def run_experiment(exp: dict, run_idx: int) -> dict:
     name = exp["name"]
     started_at = datetime.now()
 
-    print(f"\n{'=' +64}")
-    print(f"[{started_at.strftime('%H:%M:%:S')}] Experiment {run_idx}: {name}")
-    print(f'Description: {exp['description']}')
-    print(f'Optimizer: {exp["optimizer"]}')
-    print(f'Schedule: {exp['epochs']} epochs x {exp['iterations']} iterations'
-          f' = {exp['epochs'] * exp['iterations']} total epochs')
-    print(f' Search space: {list(exp['space'].keys())}')
+    print(f"\n{'='*64}")
+    print(f"[{started_at.strftime('%H:%M:%S')}] Experiment {run_idx}: {name}")
+    print(f"Description: {exp['description']}")
+    print(f"Optimizer: {exp['optimizer']}")
+    print(f"Schedule: {exp['epochs']} epochs x {exp['iterations']} iterations"
+          f" = {exp['epochs'] * exp['iterations']} total epochs")
+    print(f" Search space: {list(exp['space'].keys())}")
     print(f"{'='*64}\n")
 
     # Base results row (populated on success or failure)
     row = {
         "experiment_name": name,
-        "desciption": exp["description"],
+        "description": exp["description"],
         "optimizer": exp["optimizer"],
         "epochs": exp["epochs"],
         "iterations": exp["iterations"],
@@ -425,11 +494,23 @@ def main() -> None:
         "--dry-run", action="store_true",
         help="Print the experiment plan and exit without running any training.",
     )
+    parser.add_argument(
+        "--recommend", metavar="CSV",
+        help=(
+            "Path to a sweep results CSV. Reads the results, prints the best config to copy into tune.py / train.py, and exits"
+            "E.g. --recommend tune_sweep_results/sweep_20240101_120000.csv"
+        )
+    )
     args = parser.parse_args()
- 
+
+    # Recommend mode - no training needed
+    if args.recommend:
+        recommend_config(Path(args.recommend))
+        return
     if not DATA_YAML.exists():
         raise FileNotFoundError(f"data.yaml not found at {DATA_YAML}")
-    
+
+
     # Filter experiments
     exps_to_run = EXPERIMENTS
     if args.experiments:
