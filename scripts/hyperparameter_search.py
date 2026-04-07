@@ -88,77 +88,61 @@ RESULTS_CSV = RESULTS_DIR / f"sweep_{datetime.now().strftime('%Y%m%d_%H%M%S')}.c
 
 
 EXPERIMENTS = [
-    # 1. Learning Rate sweep MuSGD
-    {
-        "name": "lr_musgd",
-        "description": "LR schedule sweep with MuSGD",
-        "optimizer": "MuSGD",
-        "epochs": 10,
-        "iterations": 30,
-        "space": {
-            'lr0': (1e-4, 1e-1), # SGD typically needs a higher initial LR
-            'lrf': (0.01, 0.3),
-            'momentum': (0.70, 0.98), # Nesterov momentum
-            'weight_decay': (0.0, 5e-4) 
-        }
-    },
 
-    # 2. Augementation parameters
+    # 1. Core sweep — highest-impact parameters only (faster)
+    #
+    # These 5 parameters drive the vast majority of MuSGD performance.
+    # Run this first; use --recommend on the output CSV to get tightened
+    # ranges before running broad_musgd.
+    #
+    #   Estimated time on yolo26s: ~10 epochs × 20 iter = 200 training epochs
+    #   ≈ 2–3 hours
     {
-        "name": "augmentation",
-        "description": "Aerial-imagery augmentation sweep (drone-angle aware)",
-        "optimizer": "MuSGD",
-        "epochs": 10,
-        "iterations": 30,
+        "name":        "core_musgd",
+        "description": "Fast sweep of the 5 highest-impact MuSGD params",
+        "optimizer":   "MuSGD",
+        "epochs":      10,
+        "iterations":  20,
         "space": {
-            # Geometric - sharks appear from directly above; rotation matters
-            'degrees': (0.0, 45.0), # rotation range in degrees - wider than default 0
-            'scale': (0.1, 0.9), # scale jitter
-            'translate': (0.0, 0.3), # translation fraction
-            'flipud': (0.0, 0.5), # vertical flip - meaningful for drone views
-            'fliplr': (0.0, 0.5), # horizontal flip
-            'shear': (0.0, 10.0), # shear angle in degrees
-            'mosaic': (0.5, 1.0), # mosaic helps with dense/sparse scenes across 7k+ images
-            'hsv_h': (0.0, 0.05), # Color, compensate for water reflection, sunlight angle
-            'hsv_s': (0.3, 0.9), # hue jitter (narrow - underwater color stable)
-            'hsv_v': (0.2, 0.7), # brightness jitter 
-        }
-    },
-
-    # 3. Batch size and image resolution
-    {
-        "name": "batch_imgsize",
-        "description": "Bath and image size sweep - hardware throughput vs. detail",
-        "optimizer": "MuSGD",
-        "epochs": 10,
-        "iterations": 20, # fewer iterationc: larger imgsz = longer per trial
-        "space": {
-            # Note: requires Ultralytics >= 8.1; remove if you get an error
-            'batch': (8, 32), # lower = more gradient noise; higher = faster
-            'imgsz': (416, 1024),  # higher res helps for small/distance sharks
-        }
+            "lr0":          (1e-4, 1e-1),  # most critical — SGD needs higher LR than Adam
+            "lrf":          (0.01, 0.3),   # shape of LR decay schedule
+            "momentum":     (0.70, 0.98),  # Nesterov momentum
+            "weight_decay": (0.0,  5e-4),  # regularisation
+            "mosaic":       (0.5,  1.0),   # biggest single augmentation lever for YOLO
+        },
     },
     
-    # 6. Broad multi-axis sweep (recommended for final run)
+    # 2. Broad sweep — all axes, tightened ranges (overnight)
+    #
+    # Before running this, use:
+    #   python hyperparameter_search.py --recommend <core_musgd CSV>
+    # and paste the tightened lr0/lrf/momentum/weight_decay ranges it prints
+    # into the space dict below.
+    #
+    #   Estimated time on yolo26s: ~10 epochs × 30 iter = 300 training epochs
+    #   ≈ 4–6 hours
 
     {
         "name":        "broad_musgd",
         "description": "Comprehensive sweep — LR + augmentation + MuSGD (run overnight)",
         "optimizer":   "MuSGD",
-        "epochs":      15,   # slightly longer per trial for a more reliable signal
-        "iterations":  50,   # 15 × 50 = 750 total training epochs
+        "epochs":      10, 
+        "iterations":  30,   # 10 × 30 = 300 total training epochs
         "space": {
+            # LR / optimiser — tighten these from core_musgd --recommend output
             "lr0":          (1e-4,  1e-1),
             "lrf":          (0.01,  0.3),
             "momentum":     (0.70,  0.98),
             "weight_decay": (0.0,  5e-4),
-            "degrees":      (0.0,   30.0),
+
+            # Augmentation — drone/aerial imagery aware
+            "degrees":      (0.0,   30.0), # rotation — sharks appear at any angle
             "scale":        (0.1,    0.8),
             "flipud":       (0.0,    0.5),
             "fliplr":       (0.0,    0.5),
             "mosaic":       (0.5,    1.0),
-            "hsv_s":        (0.3,    0.9),
-            "hsv_v":        (0.2,    0.7),
+            "hsv_s":        (0.3,    0.9), # saturation — water reflections vary
+            "hsv_v":        (0.2,    0.7), # brightness — sunlight angle varies
         },
     },
 ]
@@ -179,7 +163,9 @@ CSV_FIELDS = [
     "finished_at",
     'duration_minutes',
     'status', # "success" | "failed"
-    "error", # Best hyperparameters recovered from Ultralytics output
+    "error", 
+    
+    # Best hyperparameters recovered from Ultralytics output
     'best_fitness',
     'best_lr0',
     'best_lrf',
