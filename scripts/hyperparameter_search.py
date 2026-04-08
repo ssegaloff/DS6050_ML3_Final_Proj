@@ -54,7 +54,8 @@ if torch.cuda.is_available():
     device = torch.device("cuda") 
     # Researve 2 corese for OS
     # cap at 12 to avoid pytorch over-allocation
-    NUM_WORKERS = min(12, max(1, os.cpu_count() - 2))
+    # CHANGED TO 16 for HPC PURPOSES, CHANGE NUMBER AS NEEDED
+    NUM_WORKERS = min(16, max(1, os.cpu_count() - 2))
     IS_CUDA = True
 elif torch.backends.mps.is_available():
     device = torch.device("mps")
