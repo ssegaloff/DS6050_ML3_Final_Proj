@@ -2,10 +2,10 @@
 # TODO: Update to accept tune results
 
 import os
+import torch
 from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
-import torch
 
 # Hardware-Agnostic Device Selection
 if torch.cuda.is_available():
@@ -49,6 +49,19 @@ FREEZE = 10             # TODO: Decide if we are freezing the backbone or fine t
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
+
+# --- tuned hyperparameters ---
+# These values were selected by hyperparameter_search.py on YYYY-MM-DD.
+# To update: run `python hyperparameter_search.py --recommend <csv_path>`
+# and paste the recommended values below.
+LR0 = 0.0142
+LRF = 0.187
+MOMENTUM = 0.934
+WEIGHT_DECAY = 0.0003
+DEGREES = 12.4
+MOSAIC = 0.87
+FLIPUD = 0.2
+FLIPLR = 0.3
 
 # verify data exists
 if not YAML_PATH.exists():
