@@ -100,4 +100,7 @@ results = model.train(
     cache = False,         # # disk is fast enough; saves 136GB
 )
 
-print(f"Best weights saved to: {model.trainer.best}")
+try:
+    print(f"Best weights saved to: {model.trainer.best}")
+except AttributeError:
+    print("Training did not complete — best weights path unavailable.")
