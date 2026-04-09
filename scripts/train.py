@@ -12,8 +12,8 @@ if torch.cuda.is_available():
     device = torch.device("cuda") # Lenovo / WSL2 (NVIDIA GPU)
     
     # Dynamic Worker Allocation Formula
-    # Reserve 2 cores for Windows/WSL; cap at 12 to avoid over-allocation (pytorch performance tends to plateau beyond 8 workers)
-    NUM_WORKERS = min(12, max(1, os.cpu_count() - 2))
+    # Reserve 2 cores for Windows/WSL; cap at 16 to avoid over-allocation (pytorch performance tends to plateau beyond 8 workers)
+    NUM_WORKERS = min(16, max(1, os.cpu_count() - 2))
     IS_CUDA = True
 
 elif torch.backends.mps.is_available():
