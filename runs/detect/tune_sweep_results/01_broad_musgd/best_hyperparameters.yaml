@@ -1,0 +1,16 @@
+# 30/30 iterations complete ✅ (20165.97s)
+# Results saved to /sfs/weka/scratch/vea8js/DS6050_ML3_Final_Proj/runs/detect/tune_sweep_results/01_broad_musgd
+# Best fitness=0.5379 observed at iteration 14
+# Best fitness metrics are {'metrics/precision(B)': 0.78091, 'metrics/recall(B)': 0.80938, 'metrics/mAP50(B)': 0.80279, 'metrics/mAP50-95(B)': 0.5379, 'val/box_loss': 1.44209, 'val/cls_loss': 0.5919, 'val/dfl_loss': 0.00312, 'fitness': 0.5379}
+# Best fitness model is /sfs/weka/scratch/vea8js/DS6050_ML3_Final_Proj/runs/detect/tune_sweep_results/train14
+lr0: 0.01329
+lrf: 0.01337
+momentum: 0.7198
+weight_decay: 0.0005
+degrees: 0.00062
+scale: 0.32768
+flipud: 0.01632
+fliplr: 0.41356
+mosaic: 0.7285
+hsv_s: 0.68914
+hsv_v: 0.32452
