@@ -40,7 +40,7 @@ else:
 MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt") # The model to evaluate
 DATA_YAML = Path("../DS6050_ML3_Final_Proj/data/raw/data.yaml") 
 SPLIT = "test"  # evaluate on the held-out test set, not the validation set
-BATCH_SIZE = 16
+BATCH_SIZE = 16  # doesn't affect results, only speed/memory usage during validation
 
 # verify files exist
 if not MODEL_PATH.exists():
@@ -60,12 +60,22 @@ metrics = model.val(
     device = device_arg,
     workers = NUM_WORKERS,
     batch = BATCH_SIZE
-    # TODO: Do we want/need to add conf and iou
+    # TODO: add conf= and iou= if we want metrics at a specific operating threshold
+#       (e.g. match the conf=0.25 used in predict.py). Omitting uses Ultralytics defaults,
+#       which is fine for standard benchmarking but won't match real-world predict.py behavior exactly
 )
 
 # --- output results ---
 # The metrics object contains your precise numbers. 
+print("\n--- Raw Metrics Object ---")
+print(metrics.box)
+
 print("\n--- Evaluation Results ---")
-print(f"mAP50: {metrics.box.map50:.4f}")
-print(f"mAP50-95: {metrics.box.map:.4f}")
-# TODO: Extract and print Precision and Recall as well.
+print(f"mAP50:          {metrics.box.map50:.4f}")
+print(f"mAP50-95:       {metrics.box.map:.4f}")
+print(f"Precision:      {metrics.box.mp:.4f}")
+print(f"Recall:         {metrics.box.mr:.4f}")
+print(f"F1:             {metrics.box.f1.mean():.4f}")
+print(f"\n--- Per-Class Results ---")
+for i, name in enumerate(metrics.names.values()):
+    print(f"  {name:<20} AP50: {metrics.box.ap50[i]:.4f}  AP50-95: {metrics.box.ap[i]:.4f}")
