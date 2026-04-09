@@ -1,4 +1,8 @@
-# TODO: Review / fix as necessary
+'''
+This script evaluates the performance of a trained model on the held-out test set.
+'''
+
+import os
 import torch
 from pathlib import Path
 from ultralytics import YOLO
