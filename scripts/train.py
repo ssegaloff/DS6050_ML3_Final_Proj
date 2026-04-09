@@ -1,5 +1,4 @@
-# TODO: update for shared configs
-# TODO: Update to accept tune results
+# TODO: update for shared configs if we want
 
 import os
 import torch
@@ -44,7 +43,7 @@ SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
 EPOCHS = 100            # use patience for early stopping
 IMG_SIZE = 640          
-BATCH_SIZE = 16
+BATCH_SIZE = 16         # can increase depending on GPU
 FREEZE = 0             # full fine-tuning; TODO: Freezing or no?
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
@@ -60,8 +59,8 @@ MOMENTUM = # TODO
 WEIGHT_DECAY = # TODO
 DEGREES = # TODO
 MOSAIC = # TODO
-FLIPUD = # TODO
-FLIPLR = # TODO
+FLIPUD = # TODO # data augmentation param: vertical flip (up-down)
+FLIPLR = # TODO # data augmentation param: horizontal flip (left-right)
 # TODO: OTHERS?
 
 # verify data exists
@@ -82,10 +81,17 @@ results = model.train(
     imgsz = IMG_SIZE,
     batch = BATCH_SIZE,
     optimizer = OPTIMIZER,
-    lr0 = 0.001,            # @TODO? want a lower LR for fine tuning
+    lr0 = LR0,
+    lrf = LRF,
+    momentum = MOMENTUM,
+    weight_decay = WEIGHT_DECAY,            
     freeze = FREEZE,        
-    patience = 10,          # early stopping if validation loss plateaus
-    augment = False,         # since we did not augment during roboflow export, may want to do
+    patience = 20,          # TODO: choose this (I felt 10 was too harsh) # early stopping if validation loss plateaus
+    augment = True,         # since we did not augment during roboflow export, may want to do
+    degrees = DEGREES,
+    mosaic = MOSAIC,
+    flipud = FLIPUD,
+    fliplr = FLIPLR,
     name = RUN_NAME,
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
     device = device_arg,        # explicitly pass GPU/CPU
