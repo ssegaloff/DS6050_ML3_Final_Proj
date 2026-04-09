@@ -28,7 +28,6 @@ from PIL import Image, ImageDraw
 # configure paths and and constants
 DATA_YAML = Path('../DS6050_ML3_Final_Proj/data/raw/data.yaml')
 OUTPUT_DIR = Path("eda_outputs")
-OUTPUT_DIR.mkdir(exist_ok=True)
 SAMPLE_SIZE = 16    # number of images to show in the grid
 GRID_COLS = 4       # grid will be GRID_COLS x (SAMPLE_SIZE // GRID_COLS)
 SEED = 26
@@ -50,56 +49,6 @@ splits = {
     "test":  (yaml_dir / cfg["test"]).resolve(),
 }
 
-# per-split summary
-print("=" * 50)
-print("SPLIT SUMMARY")
-print("=" * 50)
-
-for split_name, images_dir in splits.items():
-    labels_dir = images_dir.parent / "labels"
-
-    image_files = sorted(images_dir.glob("*.jpg")) # sort for reproducibility
-    label_files = sorted(labels_dir.glob("*.txt"))
-
-    # Count annotations per class
-    class_counts = {}
-    for label_file in label_files:
-        for line in label_file.read_text().splitlines(): # splitlines reads whole label file and splits on newlines
-            if not line.strip(): # skip empty lines
-                continue
-            class_id = int(line.split()[0]) # grabs first whitespace delimited token (always class ID in yolo format)
-            class_counts[class_id] = class_counts.get(class_id, 0) + 1 # ensure classes always print in order (regardless of appearance order in the files)
-
-    total_annotations = sum(class_counts.values())
-
-    print(f"\n{split_name}")
-    print(f"  Images      : {len(image_files)}")
-    print(f"  Label files : {len(label_files)}")
-    print(f"  Annotations : {total_annotations}")
-    for class_id, count in sorted(class_counts.items()):
-        name = class_names[class_id]
-        print(f"    {name:<20} : {count}")
-
-    # Image dimension stats
-    widths = []
-    heights = []
-    for image_file in image_files:
-        with Image.open(image_file) as img:
-            widths.append(img.width)
-            heights.append(img.height)
-
-    aspect_ratios = [w / h for w, h in zip(widths, heights)]
-
-    print(f"  Image dimensions:")
-    print(f"    Width  : min={min(widths)}, max={max(widths)}, avg={sum(widths)//len(widths)}") # // for average width and height gives clean integer since pixels are whole numbers
-    print(f"    Height : min={min(heights)}, max={max(heights)}, avg={sum(heights)//len(heights)}")
-    print(f"    Aspect : min={min(aspect_ratios):.2f}, max={max(aspect_ratios):.2f}, avg={sum(aspect_ratios)/len(aspect_ratios):.2f}") # / for average aspect ratio so we can have decimals
-
-
-# sample image grid
-random.seed(SEED)
-train_images = sorted(splits["train"].glob("*.jpg"))
-sample = random.sample(train_images, min(SAMPLE_SIZE, len(train_images))) # guard to prevent crashing if train set is smaller than SAMPLE_SIZE
 
 def draw_boxes(image_file: Path, class_names: list) -> Image.Image:
     """Open an image, draw its YOLO bounding boxes, and return the annotated image."""
@@ -146,6 +95,58 @@ def make_grid(samples: list, class_names: list, cols: int) -> Image.Image:
         grid.paste(img, (col * cell_w, row * cell_h)) # place each annotated image at correct pixel offset on the canvas
 
     return grid
+
+# per-split summary
+print("=" * 50)
+print("SPLIT SUMMARY")
+print("=" * 50)
+
+for split_name, images_dir in splits.items():
+    labels_dir = images_dir.parent / "labels"
+
+    image_files = sorted(images_dir.glob("*.jpg")) # sort for reproducibility
+    label_files = sorted(labels_dir.glob("*.txt"))
+
+    # Count annotations per class
+    class_counts = {}
+    for label_file in label_files:
+        for line in label_file.read_text().splitlines(): # splitlines reads whole label file and splits on newlines
+            if not line.strip(): # skip empty lines
+                continue
+            class_id = int(line.split()[0]) # grabs first whitespace delimited token (always class ID in yolo format)
+            class_counts[class_id] = class_counts.get(class_id, 0) + 1  # tally annotations per class
+
+    total_annotations = sum(class_counts.values())
+
+    print(f"\n{split_name}")
+    print(f"  Images      : {len(image_files)}")
+    print(f"  Label files : {len(label_files)}")
+    print(f"  Annotations : {total_annotations}")
+    for class_id, count in sorted(class_counts.items()): # ensure classes always print in order (regardless of appearance order in the files)
+        name = class_names[class_id]
+        print(f"    {name:<20} : {count}")
+
+    # Image dimension stats
+    widths = []
+    heights = []
+    for image_file in image_files:
+        with Image.open(image_file) as img:
+            widths.append(img.width)
+            heights.append(img.height)
+
+    aspect_ratios = [w / h for w, h in zip(widths, heights)]
+
+    print(f"  Image dimensions:")
+    print(f"    Width  : min={min(widths)}, max={max(widths)}, avg={sum(widths)//len(widths)}") # // for average width and height gives clean integer since pixels are whole numbers
+    print(f"    Height : min={min(heights)}, max={max(heights)}, avg={sum(heights)//len(heights)}")
+    print(f"    Aspect : min={min(aspect_ratios):.2f}, max={max(aspect_ratios):.2f}, avg={sum(aspect_ratios)/len(aspect_ratios):.2f}") # / for average aspect ratio so we can have decimals
+
+
+# sample image grid
+random.seed(SEED)
+train_images = sorted(splits["train"].glob("*.jpg"))
+sample = random.sample(train_images, min(SAMPLE_SIZE, len(train_images))) # guard to prevent crashing if train set is smaller than SAMPLE_SIZE
+
 
 # build and save grid
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True) # wont crash if dir already exists
