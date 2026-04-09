@@ -51,20 +51,20 @@ RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 
 # --- tuned hyperparameters ---
-# These values were selected by hyperparameter_search.py on YYYY-MM-DD.
+# These values were selected by hyperparameter_search.py on 2026-04-08.
 # To update: run `python hyperparameter_search.py --recommend <csv_path>`
 # and paste the recommended values below.
-LR0 = # TODO
-LRF = # TODO
-MOMENTUM = # TODO
-WEIGHT_DECAY = # TODO
-DEGREES = # TODO
-MOSAIC = # TODO
-FLIPUD = # TODO # data augmentation param: vertical flip (up-down)
-FLIPLR = # TODO # data augmentation param: horizontal flip (left-right)
-# TODO: consider adding hsv_s and hsv_v after broad_musgd sweep
-#       hsv_s = saturation (water reflections vary)
-#       hsv_v = brightness (sunlight angle varies)
+LR0 = 0.01329
+LRF = 0.01337
+MOMENTUM = 0.7198
+WEIGHT_DECAY = 0.0005
+DEGREES = 0.00062
+SCALE = 0.32768
+FLIPUD = 0.01632 # data augmentation param: vertical flip (up-down)
+FLIPLR = 0.41356 # data augmentation param: horizontal flip (left-right)
+MOSAIC = 0.7285
+HSV_S = 0.68914 # data augmentation param: HSV saturation (color shift)
+HSV_V = 0.32452 # data augmentation param: HSV brightness
 
 # verify data exists
 if not YAML_PATH.exists():
@@ -92,9 +92,12 @@ results = model.train(
     patience = 20,          # TODO: choose this (I felt 10 was too harsh) # early stopping if validation loss plateaus
     augment = True,         # since we did not augment during roboflow export, may want to do
     degrees = DEGREES,      # randomly rotates training images by up to this many degrees
+    scale = SCALE,          # randomly scale training images by this factor (e.g. 0.5 means scale by 50-150%)
+    flipud = FLIPUD,        # randomly flip training images vertically (up-down) with this probability
+    fliplr = FLIPLR,        # randomly flip training images horizontally (left-right) with this probability
     mosaic = MOSAIC,        # YOLO specific augmentation that tiles 4 diff training images into one composite (force model to detect at diff scales and cluttered contexts)
-    flipud = FLIPUD,        
-    fliplr = FLIPLR,
+    hsv_s = HSV_S,         # randomly shift saturation by up to this factor (e.g. 0.5 means shift by up to 50%)
+    hsv_v = HSV_V,         # randomly shift brightness by up to this factor
     name = RUN_NAME,
     exist_ok = True,        # overwrite existing runs (won't crash if run name already exists)
     device = device_arg,        # explicitly pass GPU/CPU
