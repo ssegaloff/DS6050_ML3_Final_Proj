@@ -1,4 +1,4 @@
-# TODO: update / fix as needed
+# USE HYPERPARAMETER SEARCH SCRIPT INSTEAD
 
 import os
 from pathlib import Path
