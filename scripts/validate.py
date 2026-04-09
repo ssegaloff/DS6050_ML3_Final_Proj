@@ -40,6 +40,7 @@ else:
 MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt") # The model to evaluate
 DATA_YAML = Path("../DS6050_ML3_Final_Proj/data/raw/data.yaml") 
 SPLIT = "test"  # evaluate on the held-out test set, not the validation set
+BATCH_SIZE = 16
 
 # verify files exist
 if not MODEL_PATH.exists():
@@ -49,11 +50,17 @@ if not DATA_YAML.exists():
 
 # --- initialize model ---
 print(f"Loading model from {MODEL_PATH}...")
-model = YOLO(str(MODEL_PATH))
+model = YOLO(str(MODEL_PATH)) # ultralytics expects a string path rather than a `Path` object
 
 # --- execute validation ---
 print(f"Running validation on '{SPLIT}' split...")
-metrics = model.val(# TODO: FILL IN THE REST OF THE ARGUMENTS HERE
+metrics = model.val(
+    data = str(DATA_YAML), # tell ultralytics where to find the test images and ground truth labels
+    split = SPLIT,
+    device = device_arg,
+    workers = NUM_WORKERS,
+    batch = BATCH_SIZE
+    # TODO: Do we want/need to add conf and iou
 )
 
 # --- output results ---
