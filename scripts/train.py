@@ -1,4 +1,5 @@
 # TODO: update for shared configs if we want
+# TODO: add docstring
 
 import os
 import torch
@@ -61,7 +62,9 @@ DEGREES = # TODO
 MOSAIC = # TODO
 FLIPUD = # TODO # data augmentation param: vertical flip (up-down)
 FLIPLR = # TODO # data augmentation param: horizontal flip (left-right)
-# TODO: OTHERS?
+# TODO: consider adding hsv_s and hsv_v after broad_musgd sweep
+#       hsv_s = saturation (water reflections vary)
+#       hsv_v = brightness (sunlight angle varies)
 
 # verify data exists
 if not YAML_PATH.exists():
@@ -83,12 +86,12 @@ results = model.train(
     optimizer = OPTIMIZER,
     lr0 = LR0,
     lrf = LRF, # learning rate final
-    momentum = MOMENTUM, # momentum for MuSGD (higher means past gradints have more influence on current step; helps smooth noisy gradients but may overshoot)
+    momentum = MOMENTUM, # momentum for MuSGD (higher means past gradients have more influence on current step; helps smooth noisy gradients but may overshoot)
     weight_decay = WEIGHT_DECAY, # essentailly L2 regularization (when used with SGD based optimizers)
     freeze = FREEZE,        
     patience = 20,          # TODO: choose this (I felt 10 was too harsh) # early stopping if validation loss plateaus
     augment = True,         # since we did not augment during roboflow export, may want to do
-    degrees = DEGREES,      # randomly rotates training images by up to this may degrees
+    degrees = DEGREES,      # randomly rotates training images by up to this many degrees
     mosaic = MOSAIC,        # YOLO specific augmentation that tiles 4 diff training images into one composite (force model to detect at diff scales and cluttered contexts)
     flipud = FLIPUD,        
     fliplr = FLIPLR,
