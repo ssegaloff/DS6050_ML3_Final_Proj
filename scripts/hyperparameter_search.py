@@ -242,11 +242,14 @@ def parse_best_fitness(tune_run_dir: Path) -> float | None:
     
 def find_actual_run_dir(results_dir: Path, run_idx: int, name: str) -> Path:
     """
+    Ultralytics saves tune output to runs/detect/{project}/{name}, 
+        so we search there rather than in the project directory directly
     Ultralytics may append a numeric suffix to avoid overwriting existing dirs.
     Find the most recently created matching directory.
     """
     prefix = f"{run_idx:02d}_{name}"
-    candidates = sorted(results_dir.glob(f"{prefix}*"), reverse=True)
+    ultralytics_dir = Path("runs") / "detect" / results_dir
+    candidates = sorted(ultralytics_dir.glob(f"{prefix}*"), reverse=True)
     for d in candidates:
         if (d / "best_hyperparameters.yaml").exists(): # checks each dir for the yaml
             return d
