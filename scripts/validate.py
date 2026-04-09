@@ -1,6 +1,7 @@
 '''
 This script evaluates the performance of a trained model on the held-out test set.
 '''
+# TODO: update for shared configs
 
 import os
 import torch

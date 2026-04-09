@@ -1,3 +1,5 @@
+# TODO: update for shared configs
+
 import torch
 from datetime import datetime
 from pathlib import Path

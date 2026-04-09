@@ -1,4 +1,4 @@
-# TODO: COMPLETE THIS SCRIPT AND MAKE UPDATES NEEDED
+# TODO: update for shared configs
 # TODO: Update to accept tune results
 
 import os
