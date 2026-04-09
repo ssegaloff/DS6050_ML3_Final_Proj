@@ -37,15 +37,15 @@ else:
     device_arg = "cpu"
 
 # --- configure variables ---
-# TODO: CHANGE / DECIDE ON THESE PARAMETERS (everything is currently a placeholder)
+# TODO: Confirm these
 DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
 SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
-EPOCHS = 10
+EPOCHS = 100            # use patience for early stopping
 IMG_SIZE = 640          
 BATCH_SIZE = 16
-FREEZE = 0             # Freezing or no?
+FREEZE = 0             # full fine-tuning; TODO: Freezing or no?
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
@@ -54,14 +54,15 @@ OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 # These values were selected by hyperparameter_search.py on YYYY-MM-DD.
 # To update: run `python hyperparameter_search.py --recommend <csv_path>`
 # and paste the recommended values below.
-LR0 = 0.0142
-LRF = 0.187
-MOMENTUM = 0.934
-WEIGHT_DECAY = 0.0003
-DEGREES = 12.4
-MOSAIC = 0.87
-FLIPUD = 0.2
-FLIPLR = 0.3
+LR0 = # TODO
+LRF = # TODO
+MOMENTUM = # TODO
+WEIGHT_DECAY = # TODO
+DEGREES = # TODO
+MOSAIC = # TODO
+FLIPUD = # TODO
+FLIPLR = # TODO
+# TODO: OTHERS?
 
 # verify data exists
 if not YAML_PATH.exists():
