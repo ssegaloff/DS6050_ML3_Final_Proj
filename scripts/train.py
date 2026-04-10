@@ -42,10 +42,12 @@ DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
 SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
-EPOCHS = 100            # use patience for early stopping
+EPOCHS = 300            # use patience for early stopping
 IMG_SIZE = 640          
-BATCH_SIZE = 32         # can increase depending on GPU
-FREEZE = 23             # Freeze backbone
+# BATCH_SIZE = 32         # can increase depending on GPU
+BATCH_SIZE = 16
+# FREEZE = 23             # Freeze backbone
+FREEZE = 0              # Unfreeze all layers
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
@@ -54,7 +56,8 @@ OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 # These values were selected by hyperparameter_search.py on 2026-04-08.
 # To update: run `python hyperparameter_search.py --recommend <csv_path>`
 # and paste the recommended values below.
-LR0 = 0.01329
+# LR0 = 0.01329
+LR0 = 0.001329 # drop 10x for unfreezing
 LRF = 0.01337
 MOMENTUM = 0.7198
 WEIGHT_DECAY = 0.0005
