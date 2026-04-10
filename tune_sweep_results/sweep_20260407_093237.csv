@@ -1,0 +1,2 @@
+experiment_name,description,optimizer,epochs,iterations,total_training_epochs,space_keys,started_at,finished_at,duration_minutes,status,error,best_fitness,best_lr0,best_lrf,best_momentum,best_weight_decay,best_batch,best_imgsz,best_degrees,best_mosaic,best_flipud,best_fliplr,results_dir
+core_musgd,Fast sweep of the 5 highest-impact MuSGD params,MuSGD,10,20,200,lr0|lrf|momentum|weight_decay|mosaic,2026-04-07T09:32:37.876839,2026-04-07T13:25:19.205690,232.7,success,,,,,,,,,,,,,tune_sweep_results/01_core_musgd

@@ -1,0 +1,2 @@
+experiment_name,description,optimizer,epochs,iterations,total_training_epochs,space_keys,started_at,finished_at,duration_minutes,status,error,best_fitness,best_lr0,best_lrf,best_momentum,best_weight_decay,best_batch,best_imgsz,best_degrees,best_mosaic,best_flipud,best_fliplr,results_dir
+broad_musgd,Comprehensive sweep — LR + augmentation + MuSGD (run overnight),MuSGD,10,30,300,lr0|lrf|momentum|weight_decay|degrees|scale|flipud|fliplr|mosaic|hsv_s|hsv_v,2026-04-08T11:10:34.079313,2026-04-08T16:46:40.775738,336.1,success,,,,,,,,,,,,,tune_sweep_results/01_broad_musgd
