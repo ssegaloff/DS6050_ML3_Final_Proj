@@ -122,7 +122,8 @@ summary_lines = [
     "",
     "--- Per-Class Results ---",
 ]
-for i, name in enumerate(metrics.names.values()):
+
+for i, name in enumerate(list(metrics.names.values())[:len(metrics.box.ap50)]):
     summary_lines.append(
         f"  {name:<20} AP50: {metrics.box.ap50[i]:.4f}  AP50-95: {metrics.box.ap[i]:.4f}"
     )
