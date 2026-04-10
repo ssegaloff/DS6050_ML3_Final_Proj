@@ -44,9 +44,9 @@ yaml_dir = DATA_YAML.parent
 
 # resolve split paths
 splits = {
-    "train": (yaml_dir / cfg["train"]).resolve(),
-    "val":   (yaml_dir / cfg["val"]).resolve(),
-    "test":  (yaml_dir / cfg["test"]).resolve(),
+    "train": (yaml_dir / cfg["train"].replace("../", "")).resolve(),
+    "val":   (yaml_dir / cfg["val"].replace("../", "")).resolve(),
+    "test":  (yaml_dir / cfg["test"].replace("../", "")).resolve(),
 }
 
 
@@ -127,19 +127,22 @@ for split_name, images_dir in splits.items():
         print(f"    {name:<20} : {count}")
 
     # Image dimension stats
-    widths = []
-    heights = []
-    for image_file in image_files:
-        with Image.open(image_file) as img:
-            widths.append(img.width)
-            heights.append(img.height)
+    if not image_files:
+        print("  Image dimensions: N/A (No images found in this split)")
+    else:
+        widths = []
+        heights = []
+        for image_file in image_files:
+            with Image.open(image_file) as img:
+                widths.append(img.width)
+                heights.append(img.height)
 
-    aspect_ratios = [w / h for w, h in zip(widths, heights)]
+        aspect_ratios = [w / h for w, h in zip(widths, heights)]
 
-    print(f"  Image dimensions:")
-    print(f"    Width  : min={min(widths)}, max={max(widths)}, avg={sum(widths)//len(widths)}") # // for average width and height gives clean integer since pixels are whole numbers
-    print(f"    Height : min={min(heights)}, max={max(heights)}, avg={sum(heights)//len(heights)}")
-    print(f"    Aspect : min={min(aspect_ratios):.2f}, max={max(aspect_ratios):.2f}, avg={sum(aspect_ratios)/len(aspect_ratios):.2f}") # / for average aspect ratio so we can have decimals
+        print(f"  Image dimensions:")
+        print(f"    Width  : min={min(widths)}, max={max(widths)}, avg={sum(widths)//len(widths)}") 
+        print(f"    Height : min={min(heights)}, max={max(heights)}, avg={sum(heights)//len(heights)}")
+        print(f"    Aspect : min={min(aspect_ratios):.2f}, max={max(aspect_ratios):.2f}, avg={sum(aspect_ratios)/len(aspect_ratios):.2f}")
 
 
 # sample image grid
