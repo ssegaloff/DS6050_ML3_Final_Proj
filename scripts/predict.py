@@ -1,8 +1,24 @@
 # TODO: update for shared configs
 
+'''
+predict.py
+
+Runs inference on the test set using a trained YOLO model and saves
+annotated images and label files to a predict/ subdirectory.
+
+Usage:
+    Run the script and enter the run name when prompted:
+        python predict.py
+        > Enter run name (e.g. sharks_v4_frozen): sharks_v4_frozen
+
+    Results are saved to:
+        runs/detect/<run_name>_predict/
+            images/    — annotated images with bounding boxes
+            labels/    — YOLO-format label files
+'''
+
 import torch
 import os
-from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
 
@@ -37,15 +53,18 @@ else:
     device_arg = "cpu"
 
 # --- configure ---
-MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt")
-SOURCE = Path("data/raw/test/images")
+RUN_NAME   = input("Enter run name (e.g. sharks_v4_frozen): ").strip()
+MODEL_PATH = Path(f"runs/detect/{RUN_NAME}/weights/best.pt")
+SOURCE = Path("../DS6050_ML3_Final_Proj/data/raw/test/images")
 CONF_THRESHOLD = 0.25
-default = datetime.now().strftime("%Y%m%d_%H%M%S")
-RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 
 # verify model exists
 if not MODEL_PATH.exists():
     raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
+
+# verify source exists
+if not SOURCE.exists():
+    raise FileNotFoundError(f"Test images not found at {SOURCE}")
 
 # --- initialize model ---
 model = YOLO(MODEL_PATH)
@@ -55,8 +74,10 @@ results = model.predict(
     conf = CONF_THRESHOLD,
     save=True,                 # saves annotated images with bounding boxes
     save_txt=True,             # saves label files
-    name = RUN_NAME,
-    device = device_arg
+    name = f"{RUN_NAME}_predict",
+    device = device_arg,
+    workers = NUM_WORKERS,
+
 )
 
-print(f"Results saved to: runs/detect/{RUN_NAME}")
+print(f"Results saved to: runs/detect/{RUN_NAME}_predict")
