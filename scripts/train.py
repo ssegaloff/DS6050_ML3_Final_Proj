@@ -6,8 +6,8 @@ dataset using tuned MuSGD hyperparameters and mosaic/augmentation settings
 selected by hyperparameter_search.py.
 
 The backbone is frozen for the first phase of training (FREEZE = 23).
-To unfreeze all layers for a second-phase run, set FREEZE = 0 and
-drop LR0 by 10x (see commented values in the config section).
+To unfreeze C2PSA, neck, and head layers for a second-phase run, set FREEZE = 10 
+and drop LR0 by 10x (see commented values in the config section).
 
 Usage:
     python train.py
@@ -81,8 +81,8 @@ IMG_SIZE = 640
 # BATCH_SIZE = 32         # can increase depending on GPU
 BATCH_SIZE = 16       # standardizing to 16 to avoid crashing with unfrozen runs
 
-FREEZE = 23             # head only trainable
-# FREEZE = 10              # Unfreeze C2PSA and neck and head
+# FREEZE = 23             # head only trainable
+FREEZE = 10              # Unfreeze C2PSA and neck and head
 
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
@@ -93,8 +93,8 @@ OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 # To update: run `python hyperparameter_search.py --recommend <csv_path>`
 # and paste the recommended values below.
 
-LR0 = 0.01329
-# LR0 = 0.001329 # drop 10x for unfreezing
+# LR0 = 0.01329
+LR0 = 0.001329 # drop 10x for unfreezing
 
 LRF = 0.01337
 MOMENTUM = 0.7198
