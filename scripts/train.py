@@ -1,5 +1,38 @@
+'''
+train.py
+
+Fine-tunes a pretrained YOLO26 model of specified size on the shark detection
+dataset using tuned MuSGD hyperparameters and mosaic/augmentation settings
+selected by hyperparameter_search.py.
+
+The backbone is frozen for the first phase of training (FREEZE = 23).
+To unfreeze all layers for a second-phase run, set FREEZE = 0 and
+drop LR0 by 10x (see commented values in the config section).
+
+Usage:
+    python train.py
+    > Enter run name (e.g. shark_v2_unfrozen): sharks_v1_frozen
+
+    If no name is entered, the run is timestamped automatically.
+
+Configuration:
+    Edit the constants under "configure variables" and "tuned hyperparameters"
+    to change model size, batch size, freeze depth, or optimizer settings.
+    To refresh hyperparameters after a new sweep, run:
+        python hyperparameter_search.py --recommend <csv_path>
+    and paste the recommended values into the LR0/LRF/etc. constants below.
+
+Results are saved to:
+    runs/detect/<run_name>/
+        weights/best.pt        — best checkpoint (use this for validate.py / predict.py)
+        weights/last.pt        — final epoch checkpoint
+        results.csv            — per-epoch training and validation metrics
+        (plots, confusion matrix, etc.)
+'''
+
+
+
 # TODO: update for shared configs if we want
-# TODO: add docstring
 
 import os
 import torch
@@ -44,10 +77,13 @@ SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
 EPOCHS = 300            # use patience for early stopping
 IMG_SIZE = 640          
+
 # BATCH_SIZE = 32         # can increase depending on GPU
 BATCH_SIZE = 16       # standardizing to 16 to avoid crashing with unfrozen runs
+
 FREEZE = 23             # head only trainable
 # FREEZE = 10              # Unfreeze C2PSA and neck and head
+
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
 OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
@@ -56,8 +92,10 @@ OPTIMIZER = "MuSGD" # SGD with Muon-style orthagonalized updates
 # These values were selected by hyperparameter_search.py on 2026-04-08.
 # To update: run `python hyperparameter_search.py --recommend <csv_path>`
 # and paste the recommended values below.
+
 LR0 = 0.01329
 # LR0 = 0.001329 # drop 10x for unfreezing
+
 LRF = 0.01337
 MOMENTUM = 0.7198
 WEIGHT_DECAY = 0.0005
