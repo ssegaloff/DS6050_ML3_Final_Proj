@@ -1,19 +1,23 @@
 '''
 validate.py
- 
+
 Evaluates a trained YOLO model on the held-out test set and saves results
 to a `validation/` subdirectory alongside the model weights.
- 
+
 Usage:
     Run the script and enter the run name when prompted:
         python validate.py
         > Enter run name (e.g. sharks_v4_frozen): sharks_v4_frozen
-    
+
     Results are saved to:
         runs/detect/<run_name>/validation/
             test_metrics.txt   — human-readable summary
             test_metrics.csv   — machine-readable summary
-            (+ Ultralytics plots: confusion matrix, PR curve, etc.)
+        
+        runs/detect/runs/detect/<run_name>/validation/
+            (Ultralytics plots: confusion matrix, PR curve, etc.)
+            Note: the doubled path is a known Ultralytics quirk when
+            project/name args are passed; plots land here regardless.
 '''
 # TODO: update for shared configs if desired
 

@@ -2,7 +2,7 @@
 predict.py
 
 Runs inference on the test set using a trained YOLO model and saves
-annotated images and label files to a predict/ subdirectory.
+annotated images and label files.
 
 Usage:
     Run the script and enter the run name when prompted:
@@ -13,6 +13,10 @@ Usage:
         runs/detect/<run_name>/predict/
             images/    — annotated images with bounding boxes
             labels/    — YOLO-format label files
+        
+        Note: Ultralytics may save to a doubled path
+            runs/detect/runs/detect/<run_name>/predict/
+            due to a known Ultralytics path quirk.
 '''
 
 # TODO: update for shared configs if desired
