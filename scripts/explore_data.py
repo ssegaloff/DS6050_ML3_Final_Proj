@@ -172,6 +172,8 @@ for split_name, images_dir in splits.items():
 
     split_stats.append(row)
 
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True) # wont crash if dir already exists
+
 # save CSV
 csv_path = OUTPUT_DIR / "split_summary.csv"
 fieldnames = list(split_stats[0].keys())
