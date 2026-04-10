@@ -60,7 +60,7 @@ else:
 RUN_NAME   = input("Enter run name (e.g. sharks_v4_frozen): ").strip()
 MODEL_PATH = Path(f"runs/detect/{RUN_NAME}/weights/best.pt")
 SOURCE = Path("../DS6050_ML3_Final_Proj/data/raw/test/images")
-CONF_THRESHOLD = 0.25
+CONF_THRESHOLD = 0.15
 
 # verify model exists
 if not MODEL_PATH.exists():
