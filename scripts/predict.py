@@ -14,9 +14,6 @@ Usage:
             images/    — annotated images with bounding boxes
             labels/    — YOLO-format label files
         
-        Note: Ultralytics may save to a doubled path
-            runs/detect/runs/detect/<run_name>/predict/
-            due to a known Ultralytics path quirk.
 '''
 
 # TODO: update for shared configs if desired
@@ -78,10 +75,11 @@ results = model.predict(
     conf     = CONF_THRESHOLD,
     save     = True,
     save_txt = True,
-    project  = "runs/detect",
-    name     = f"{RUN_NAME}/predict",
+    project  = f"runs/detect/{RUN_NAME}",
+    name     = f"predict",
     device   = device_arg,
     workers  = NUM_WORKERS,
 )
+
 
 print(f"Results saved to: runs/detect/{RUN_NAME}/predict")
