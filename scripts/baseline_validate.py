@@ -47,18 +47,6 @@ MODEL_PATH = Path("yolo26l.pt")  # pretrained weights, no fine-tuning
 DATA_YAML  = Path("../DS6050_ML3_Final_Proj/data/raw/data.yaml")
 SPLIT      = "test"   # evaluate on the held-out test set, not the validation set
 BATCH_SIZE = 16       # doesn't affect results, only speed/memory usage during validation
-SAVE_DIR   = Path("runs/detect/baseline_yolo26l/validation")
-
-def get_versioned_path(base: Path) -> Path:
-    """Return base if it doesn't exist, otherwise base2, base3, etc."""
-    if not base.exists():
-        return base
-    i = 2
-    while True:
-        candidate = base.parent / f"{base.stem}{i}{base.suffix}"
-        if not candidate.exists():
-            return candidate
-        i += 1
 
 # verify files exist
 if not MODEL_PATH.exists():
@@ -72,7 +60,6 @@ model = YOLO(str(MODEL_PATH))
 
 # --- execute validation ---
 print(f"Running validation on '{SPLIT}' split...")
-print(f"Results will be saved to: {SAVE_DIR}\n")
 
 metrics = model.val(
     data      = str(DATA_YAML),
@@ -82,11 +69,14 @@ metrics = model.val(
     batch     = BATCH_SIZE,
     save_json = True,
     plots     = True,
-    project   = "runs",
-    name      = "detect/baseline_yolo26l/validation",
+    project  = "runs/detect/baseline_yolo26l",
+    name     = "validation",
     conf      = 0.15,  # match predict.py operating threshold
     # TODO: add iou= to adjust NMS overlap threshold if needed
 )
+
+SAVE_DIR = Path(metrics.save_dir)
+print(f"Results will be saved to: {SAVE_DIR}\n")
 
 # only zip over classes that have actual results (pretrained model has 80 COCO
 # classes but metrics.box.ap50 only has entries for our 4 dataset classes)
@@ -116,13 +106,12 @@ for i, name in enumerate(result_classes):
 print("\n" + "\n".join(summary_lines))
 
 # --- save human-readable .txt ---
-SAVE_DIR.mkdir(parents=True, exist_ok=True)
-txt_path = get_versioned_path(SAVE_DIR / "test_metrics.txt")
+txt_path = SAVE_DIR / "test_metrics.txt"
 txt_path.write_text("\n".join(summary_lines))
 print(f"\nSaved: {txt_path}")
 
 # --- save machine-readable .csv ---
-csv_path = get_versioned_path(SAVE_DIR / "test_metrics.csv")
+csv_path = SAVE_DIR / "test_metrics.csv"
 csv_rows = [
     {"metric": "mAP50",     "value": f"{metrics.box.map50:.4f}"},
     {"metric": "mAP50-95",  "value": f"{metrics.box.map:.4f}"},
