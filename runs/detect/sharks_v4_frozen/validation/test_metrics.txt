@@ -1,0 +1,16 @@
+Model:     runs/detect/sharks_v4_frozen/weights/best.pt
+Data:      ../DS6050_ML3_Final_Proj/data/raw/data.yaml
+Split:     test
+
+--- Evaluation Results ---
+mAP50:          0.7317
+mAP50-95:       0.5276
+Precision:      0.6948
+Recall:         0.7493
+F1:             0.7093
+
+--- Per-Class Results ---
+  boat                 AP50: 0.9567  AP50-95: 0.8183
+  human                AP50: 0.7138  AP50-95: 0.4197
+  other                AP50: 0.3789  AP50-95: 0.2204
+  shark                AP50: 0.8771  AP50-95: 0.6521
