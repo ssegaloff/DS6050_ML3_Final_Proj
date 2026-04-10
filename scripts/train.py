@@ -42,7 +42,7 @@ DATA_ROOT = Path("../DS6050_ML3_Final_Proj/data/raw")
 YAML_PATH = DATA_ROOT / "data.yaml"
 SEED = 26
 MODEL_SIZE = "l"        # n, s, m, l, x
-EPOCHS = 5            # use patience for early stopping
+EPOCHS = 100            # use patience for early stopping
 IMG_SIZE = 640          
 BATCH_SIZE = 32         # can increase depending on GPU
 FREEZE = 23             # Freeze backbone
@@ -86,7 +86,6 @@ results = model.train(
     optimizer = OPTIMIZER,
     freeze = FREEZE,        
     patience = 15,          # TODO: choose this (I felt 10 was too harsh) # early stopping if validation loss plateaus
-    augment = False,         # model doesn't augment true
     lr0 = LR0,
     lrf = LRF, # learning rate final
     momentum = MOMENTUM, # momentum for MuSGD (higher means past gradients have more influence on current step; helps smooth noisy gradients but may overshoot)
@@ -103,7 +102,7 @@ results = model.train(
     device = device_arg,        # explicitly pass GPU/CPU
     workers = NUM_WORKERS,  # from hardware acceleration above
     verbose = True,         # print training progress to console
-    cache = False,         # # disk is fast enough; saves 136GB
+    cache = False,         # disk is fast enough; saves 136GB
 )
 
 try:
