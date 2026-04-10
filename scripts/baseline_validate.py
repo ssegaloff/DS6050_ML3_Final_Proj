@@ -69,7 +69,8 @@ metrics = model.val(
     batch     = BATCH_SIZE,
     save_json = True,
     plots     = True,
-    project  = "runs/detect/baseline_yolo26l",
+    # Force an absolute path to bypass the framework's global settings
+    project  = str(Path("runs/detect/baseline_yolo26l").resolve()),
     name     = "validation",
     conf      = 0.15,  # match predict.py operating threshold
     # TODO: add iou= to adjust NMS overlap threshold if needed
