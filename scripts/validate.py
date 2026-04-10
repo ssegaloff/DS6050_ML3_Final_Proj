@@ -5,8 +5,9 @@ Evaluates a trained YOLO model on the held-out test set and saves results
 to a `validation/` subdirectory alongside the model weights.
  
 Usage:
-    Update MODEL_PATH to point to the weights you want to evaluate, then run:
+    Run the script and enter the run name when prompted:
         python validate.py
+        > Enter run name (e.g. sharks_v4_frozen): sharks_v4_frozen
     
     Results are saved to:
         runs/detect/<run_name>/validation/
@@ -52,7 +53,8 @@ else:
     device_arg = "cpu"
 
 # --- configure variables ---
-MODEL_PATH = Path("runs/detect/shark_v1/weights/best.pt") # The model to evaluate
+RUN_NAME   = input("Enter run name (e.g. sharks_v4_frozen): ").strip()
+MODEL_PATH = Path(f"runs/detect/{RUN_NAME}/weights/best.pt")
 DATA_YAML = Path("../DS6050_ML3_Final_Proj/data/raw/data.yaml") 
 SPLIT = "test"  # evaluate on the held-out test set, not the validation set
 BATCH_SIZE = 16  # doesn't affect results, only speed/memory usage during validation
