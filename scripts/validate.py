@@ -14,10 +14,8 @@ Usage:
             test_metrics.txt   — human-readable summary
             test_metrics.csv   — machine-readable summary
         
-        runs/detect/runs/detect/<run_name>/validation/
+        runs/detect/<run_name>/validation/
             (Ultralytics plots: confusion matrix, PR curve, etc.)
-            Note: the doubled path is a known Ultralytics quirk when
-            project/name args are passed; plots land here regardless.
 '''
 # TODO: update for shared configs if desired
 
@@ -63,22 +61,6 @@ DATA_YAML = Path("../DS6050_ML3_Final_Proj/data/raw/data.yaml")
 SPLIT = "test"  # evaluate on the held-out test set, not the validation set
 BATCH_SIZE = 16  # doesn't affect results, only speed/memory usage during validation
 
-def get_versioned_path(base: Path) -> Path:
-    """Return base if it doesn't exist, otherwise base2, base3, etc."""
-    if not base.exists():
-        return base
-    i = 2
-    while True:
-        candidate = base.parent / f"{base.stem}{i}{base.suffix}"
-        if not candidate.exists():
-            return candidate
-        i += 1
-
-
-# Save results to a validation/ folder inside the run directory
-# (i.e. alongside weights/, so everything for a run stays together)
-SAVE_DIR = Path(f"runs/detect/{RUN_NAME}/validation")
-
 # verify files exist
 if not MODEL_PATH.exists():
     raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
@@ -91,7 +73,6 @@ model = YOLO(str(MODEL_PATH)) # ultralytics expects a string path rather than a 
 
 # --- execute validation ---
 print(f"Running validation on '{SPLIT}' split...")
-print(f"Results will be saved to: {SAVE_DIR}\n")
 
 metrics = model.val(
     data     = str(DATA_YAML),
@@ -101,11 +82,17 @@ metrics = model.val(
     batch    = BATCH_SIZE,
     save_json = True,
     plots    = True,
-    project  = "runs/detect",
-    name     = f"{RUN_NAME}/validation",
+    project  = f"runs/detect/{RUN_NAME}",
+    name     = f"validation",
     conf = 0.15,   # match predict.py operating threshold
     # TODO: add iou= to adjust NMS overlap threshold if needed; omitting uses Ultralytics default of 0.7, which is fine for standard benchmarking but won't match real-world predict.py behavior exactly
 )
+
+# Save results to a validation/ folder inside the run directory
+# (i.e. alongside weights/, so everything for a run stays together)
+SAVE_DIR = Path(metrics.save_dir)
+
+print(f"Results will be saved to: {SAVE_DIR}\n")
 
 # --- build results summary ---
 summary_lines = [
@@ -132,14 +119,13 @@ for i, name in enumerate(list(metrics.names.values())[:len(metrics.box.ap50)]):
 print("\n" + "\n".join(summary_lines))
  
 # --- save human-readable .txt ---
-SAVE_DIR.mkdir(parents=True, exist_ok=True)
-txt_path = get_versioned_path(SAVE_DIR / "test_metrics.txt")
+txt_path = SAVE_DIR / "test_metrics.txt"
 
 txt_path.write_text("\n".join(summary_lines))
 print(f"\nSaved: {txt_path}")
  
 # --- save machine-readable .csv ---
-csv_path = get_versioned_path(SAVE_DIR / "test_metrics.csv")
+csv_path = SAVE_DIR / "test_metrics.csv"
 csv_rows = [
     {"metric": "mAP50",     "value": f"{metrics.box.map50:.4f}"},
     {"metric": "mAP50-95",  "value": f"{metrics.box.map:.4f}"},
