@@ -9,6 +9,8 @@ then reports:
   - Class distribution (annotations per class, per split)
   - Image dimension and aspect ratio statistics
   - A saved sample grid of images with bounding boxes drawn
+  - Saves a per-split summary to eda_outputs/split_summary.csv
+  - Saves a human-readable report to eda_outputs/eda_report.md
 
 Usage:
     python explore_data.py
@@ -20,7 +22,9 @@ Output:
 
 # imports
 import random
+import csv
 import yaml
+from datetime import datetime
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -101,6 +105,8 @@ print("=" * 50)
 print("SPLIT SUMMARY")
 print("=" * 50)
 
+split_stats = []  # one dict per split, used for CSV and markdown outputs
+
 for split_name, images_dir in splits.items():
     labels_dir = images_dir.parent / "labels"
 
@@ -144,6 +150,87 @@ for split_name, images_dir in splits.items():
         print(f"    Height : min={min(heights)}, max={max(heights)}, avg={sum(heights)//len(heights)}")
         print(f"    Aspect : min={min(aspect_ratios):.2f}, max={max(aspect_ratios):.2f}, avg={sum(aspect_ratios)/len(aspect_ratios):.2f}")
 
+    # collect stats for file outputs
+    row = {
+        "split": split_name,
+        "num_images": len(image_files),
+        "num_label_files": len(label_files),
+        "total_annotations": total_annotations,
+        "width_min":  min(widths)  if image_files else "",
+        "width_max":  max(widths)  if image_files else "",
+        "width_avg":  sum(widths) // len(widths) if image_files else "",
+        "height_min": min(heights) if image_files else "",
+        "height_max": max(heights) if image_files else "",
+        "height_avg": sum(heights) // len(heights) if image_files else "",
+        "aspect_min": f"{min(aspect_ratios):.2f}"  if image_files else "",
+        "aspect_max": f"{max(aspect_ratios):.2f}"  if image_files else "",
+        "aspect_avg": f"{sum(aspect_ratios)/len(aspect_ratios):.2f}" if image_files else "",
+    }
+    # add one column per class
+    for class_id, cname in enumerate(class_names):
+        row[f"class_{cname}"] = class_counts.get(class_id, 0)
+
+    split_stats.append(row)
+
+# save CSV
+csv_path = OUTPUT_DIR / "split_summary.csv"
+fieldnames = list(split_stats[0].keys())
+
+with open(csv_path, "w", newline="") as f:
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(split_stats)
+
+print(f"\nCSV summary saved to: {csv_path}")
+
+
+# save markdown report
+md_path = OUTPUT_DIR / "eda_report.md"
+generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+lines = [
+    "# EDA Report — Shark Detection Dataset",
+    "",
+    f"**Generated:** {generated_at}  ",
+    f"**Data YAML:** `{DATA_YAML}`  ",
+    f"**Classes:** {', '.join(class_names)}",
+    "",
+    "---",
+    "",
+    "## Split Summary",
+    "",
+    "| Split | Images | Label Files | Total Annotations |"
+    + "".join(f" {n} |" for n in class_names),
+    "|-------|--------|-------------|-------------------|"
+    + "".join("---|" for _ in class_names),
+]
+
+for s in split_stats:
+    class_cols = " | ".join(str(s[f"class_{n}"]) for n in class_names)
+    lines.append(
+        f"| {s['split']} | {s['num_images']} | {s['num_label_files']} "
+        f"| {s['total_annotations']} | {class_cols} |"
+    )
+
+lines += [
+    "",
+    "---",
+    "",
+    "## Image Dimensions",
+    "",
+    "| Split | Width min | Width max | Width avg | Height min | Height max | Height avg | Aspect min | Aspect max | Aspect avg |",
+    "|-------|-----------|-----------|-----------|------------|------------|------------|------------|------------|------------|",
+]
+
+for s in split_stats:
+    lines.append(
+        f"| {s['split']} | {s['width_min']} | {s['width_max']} | {s['width_avg']} "
+        f"| {s['height_min']} | {s['height_max']} | {s['height_avg']} "
+        f"| {s['aspect_min']} | {s['aspect_max']} | {s['aspect_avg']} |"
+    )
+
+md_path.write_text("\n".join(lines))
+print(f"Markdown report saved to: {md_path}")
 
 # sample image grid
 random.seed(SEED)
