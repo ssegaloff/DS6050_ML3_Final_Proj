@@ -90,10 +90,9 @@ metrics = model.val(
     save_json = True,
     plots    = True,
     project  = "runs/detect",
-    name     = f"{RUN_NAME}/validation"
-    # TODO: add conf= and iou= if we want metrics at a specific operating threshold
-#       (e.g. match the conf=0.25 used in predict.py). Omitting uses Ultralytics defaults,
-#       which is fine for standard benchmarking but won't match real-world predict.py behavior exactly
+    name     = f"{RUN_NAME}/validation",
+    conf = 0.25,   # match predict.py operating threshold
+    # TODO: add iou= to adjust NMS overlap threshold if needed; omitting uses Ultralytics default of 0.7, which is fine for standard benchmarking but won't match real-world predict.py behavior exactly
 )
 
 # --- build results summary ---
