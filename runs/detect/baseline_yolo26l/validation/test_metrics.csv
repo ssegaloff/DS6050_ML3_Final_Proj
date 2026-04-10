@@ -1,0 +1,14 @@
+metric,value
+mAP50,0.0003
+mAP50-95,0.0001
+Precision,0.0006
+Recall,0.0066
+F1,0.0010
+person_AP50,0.0012
+person_AP50-95,0.0003
+bicycle_AP50,0.0000
+bicycle_AP50-95,0.0000
+car_AP50,0.0000
+car_AP50-95,0.0000
+motorcycle_AP50,0.0000
+motorcycle_AP50-95,0.0000

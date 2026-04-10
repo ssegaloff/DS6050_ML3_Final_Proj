@@ -1,0 +1,16 @@
+Model:     yolo26l.pt  (pretrained, no fine-tuning)
+Data:      ../DS6050_ML3_Final_Proj/data/raw/data.yaml
+Split:     test
+
+--- Evaluation Results ---
+mAP50:          0.0003
+mAP50-95:       0.0001
+Precision:      0.0006
+Recall:         0.0066
+F1:             0.0010
+
+--- Per-Class Results ---
+  person               AP50: 0.0012  AP50-95: 0.0003
+  bicycle              AP50: 0.0000  AP50-95: 0.0000
+  car                  AP50: 0.0000  AP50-95: 0.0000
+  motorcycle           AP50: 0.0000  AP50-95: 0.0000
