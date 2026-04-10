@@ -70,14 +70,14 @@ if not SOURCE.exists():
 model = YOLO(MODEL_PATH)
 
 results = model.predict(
-    source  = str(SOURCE),
-    conf    = CONF_THRESHOLD,
-    save    = True,
-    save_txt= True,
-    project = str(Path(f"runs/detect/{RUN_NAME}")),
-    name    = "predict",
-    device  = device_arg,
-    workers = NUM_WORKERS,
+    source   = str(SOURCE),
+    conf     = CONF_THRESHOLD,
+    save     = True,
+    save_txt = True,
+    project  = "runs/detect",
+    name     = f"{RUN_NAME}/predict",
+    device   = device_arg,
+    workers  = NUM_WORKERS,
 )
 
 print(f"Results saved to: runs/detect/{RUN_NAME}/predict")

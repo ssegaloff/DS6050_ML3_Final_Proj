@@ -61,7 +61,7 @@ BATCH_SIZE = 16  # doesn't affect results, only speed/memory usage during valida
 
 # Save results to a validation/ folder inside the run directory
 # (i.e. alongside weights/, so everything for a run stays together)
-SAVE_DIR = MODEL_PATH.parent.parent / "validation"
+SAVE_DIR = Path(f"runs/detect/{RUN_NAME}/validation")
 
 # verify files exist
 if not MODEL_PATH.exists():
@@ -78,15 +78,15 @@ print(f"Running validation on '{SPLIT}' split...")
 print(f"Results will be saved to: {SAVE_DIR}\n")
 
 metrics = model.val(
-    data = str(DATA_YAML), # tell ultralytics where to find the test images and ground truth labels
-    split = SPLIT,
-    device = device_arg,
-    workers = NUM_WORKERS,
-    batch = BATCH_SIZE,
-    save_json = True,   # saves COCO-format results (useful for future analysis)
-    plots   = True,     # saves confusion matrix, PR curve, etc.
-    project = str(SAVE_DIR.parent),
-    name    = SAVE_DIR.name
+    data     = str(DATA_YAML),
+    split    = SPLIT,
+    device   = device_arg,
+    workers  = NUM_WORKERS,
+    batch    = BATCH_SIZE,
+    save_json = True,
+    plots    = True,
+    project  = "runs/detect",
+    name     = f"{RUN_NAME}/validation"
     # TODO: add conf= and iou= if we want metrics at a specific operating threshold
 #       (e.g. match the conf=0.25 used in predict.py). Omitting uses Ultralytics defaults,
 #       which is fine for standard benchmarking but won't match real-world predict.py behavior exactly
