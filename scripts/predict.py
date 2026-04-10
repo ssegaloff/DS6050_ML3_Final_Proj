@@ -1,5 +1,3 @@
-# TODO: update for shared configs
-
 '''
 predict.py
 
@@ -12,10 +10,12 @@ Usage:
         > Enter run name (e.g. sharks_v4_frozen): sharks_v4_frozen
 
     Results are saved to:
-        runs/detect/<run_name>_predict/
+        runs/detect/<run_name>/predict/
             images/    — annotated images with bounding boxes
             labels/    — YOLO-format label files
 '''
+
+# TODO: update for shared configs if desired
 
 import torch
 import os
@@ -70,14 +70,14 @@ if not SOURCE.exists():
 model = YOLO(MODEL_PATH)
 
 results = model.predict(
-    source = str(SOURCE),
-    conf = CONF_THRESHOLD,
-    save=True,                 # saves annotated images with bounding boxes
-    save_txt=True,             # saves label files
-    name = f"{RUN_NAME}_predict",
-    device = device_arg,
+    source  = str(SOURCE),
+    conf    = CONF_THRESHOLD,
+    save    = True,
+    save_txt= True,
+    project = str(Path(f"runs/detect/{RUN_NAME}")),
+    name    = "predict",
+    device  = device_arg,
     workers = NUM_WORKERS,
-
 )
 
-print(f"Results saved to: runs/detect/{RUN_NAME}_predict")
+print(f"Results saved to: runs/detect/{RUN_NAME}/predict")
