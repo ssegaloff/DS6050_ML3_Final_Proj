@@ -1791,12 +1791,19 @@ if (metaRuns.length === 0) {
                   : (typeof v === 'number' && !Number.isInteger(v)) ? v.toPrecision(4)
                   : String(v);
   const keys = Object.keys(metaRuns[0].metadata);
+  // A row is "different" if not all formatted values are identical across runs.
+  const rowDiffers = k => {
+    const vals = metaRuns.map(r => fmt(r.metadata[k]));
+    return vals.some(v => v !== vals[0]);
+  };
   document.getElementById('metaTable').innerHTML =
     '<thead><tr><th>Parameter</th>' + metaRuns.map(r => '<th>' + r.label + '</th>').join('') + '</tr></thead>' +
-    '<tbody>' + keys.map(k =>
-      '<tr><td class="meta-key">' + k + '</td>' +
-      metaRuns.map(r => '<td>' + fmt(r.metadata[k]) + '</td>').join('') + '</tr>'
-    ).join('') + '</tbody>';
+    '<tbody>' + keys.map(k => {
+      const differs = rowDiffers(k);
+      const style   = differs ? ' style="font-weight:600;"' : '';
+      return '<tr><td class="meta-key"' + style + '>' + k + '</td>' +
+        metaRuns.map(r => '<td' + style + '>' + fmt(r.metadata[k]) + '</td>').join('') + '</tr>';
+    }).join('') + '</tbody>';
 }
 </script>
 </body>
