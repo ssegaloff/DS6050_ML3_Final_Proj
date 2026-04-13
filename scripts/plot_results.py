@@ -30,6 +30,17 @@ def load_metrics(csv_path):
             metrics[row["metric"]] = float(row["value"])
     return metrics
 
+
+run_names = list(RUNS.keys())
+colors = ["#888780", "#378ADD", "#1D9E75"]  # baseline, freeze23, freeze10
+
+# validate all paths exist
+for name, path in RUNS.items():
+    if not path.exists():
+        raise FileNotFoundError(f"Metrics not found for '{name}': {path}")
+
+assert len(colors) >= len(run_names), "Add a color for each run"
+
 # load all runs
 data = {name: load_metrics(path) for name, path in RUNS.items()}
 
@@ -40,11 +51,8 @@ class_metrics   = ["boat_AP50", "human_AP50", "other_AP50", "shark_AP50"]
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 fig.suptitle("Model Comparison — Shark Detection", fontsize=14)
 
-run_names = list(data.keys())
 x = np.arange(len(overall_metrics)) # gives evenly spaced positions for the groups of bars on the x-axis
-width = 0.25  # bar width; adjust if you add more runs
-
-colors = ["#888780", "#378ADD", "#1D9E75"]  # baseline, freeze23, freeze10
+width = 0.8 / len(run_names)  # bar width
 
 for i, (name, color) in enumerate(zip(run_names, colors)):
     values = [data[name].get(m, 0) for m in overall_metrics]
@@ -65,7 +73,7 @@ for i, (name, color) in enumerate(zip(run_names, colors)):
     ax2.bar(x2 + i * width, values, width, label=name, color=color)
 
 ax2.set_title("Per-class AP50")
-ax2.set_xticks(x2 + width * (len(data) - 1) / 2) # centers tick labels in middle of each group (given 3 runs)
+ax2.set_xticks(x2 + width * (len(data) - 1) / 2) # centers tick labels in middle of each group
 ax2.set_xticklabels(class_labels)
 ax2.set_ylim(0, 1)
 ax2.legend()
