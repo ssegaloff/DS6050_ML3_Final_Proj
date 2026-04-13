@@ -81,6 +81,8 @@
   .img-thumb:hover { opacity: .85; }
   .img-download { display: block; font-size: 11px; color: var(--text3); margin-top: 5px; text-align: right; }
   .img-download:hover { color: var(--text2); }
+  .chart-dl { display: block; font-size: 11px; color: var(--text3); margin-top: 5px; text-align: right; cursor: pointer; text-decoration: none; }
+  .chart-dl:hover { color: var(--text2); }
 
   /* lightbox */
   #lightbox {
@@ -125,16 +127,19 @@
   <div>
     <p class="section-label">Overall metrics</p>
     <div class="chart-wrap" style="height:220px;"><canvas id="overallChart"></canvas></div>
+    <a class="chart-dl" onclick="downloadCanvas('overallChart','overall_metrics.png')">Download</a>
     <div class="legend" id="overallLegend"></div>
   </div>
   <div>
     <p class="section-label">Per-class AP50 &mdash; fine-tuned</p>
     <div class="chart-wrap" style="height:220px;"><canvas id="perClassChart"></canvas></div>
+    <a class="chart-dl" onclick="downloadCanvas('perClassChart','per_class_ap50.png')">Download</a>
     <div class="legend" id="perClassLegend"></div>
   </div>
   <div id="pcRecallCol">
     <p class="section-label">Per-class recall &mdash; fine-tuned</p>
     <div class="chart-wrap" style="height:220px;"><canvas id="pcRecallChart"></canvas></div>
+    <a class="chart-dl" onclick="downloadCanvas('pcRecallChart','per_class_recall.png')">Download</a>
     <div class="legend" id="pcRecallLegend"></div>
   </div>
 </div>
@@ -146,14 +151,17 @@
     <div>
       <p class="section-sublabel">Validation mAP50 &mdash; &bull; best epoch</p>
       <div class="chart-wrap" style="height:190px;"><canvas id="map50Chart"></canvas></div>
+      <a class="chart-dl" onclick="downloadCanvas('map50Chart','training_map50.png')">Download</a>
     </div>
     <div>
       <p class="section-sublabel">Box loss &mdash; val (solid) &middot; train (dashed)</p>
       <div class="chart-wrap" style="height:190px;"><canvas id="boxLossChart"></canvas></div>
+      <a class="chart-dl" onclick="downloadCanvas('boxLossChart','training_box_loss.png')">Download</a>
     </div>
     <div>
       <p class="section-sublabel">Cls loss &mdash; val (solid) &middot; train (dashed)</p>
       <div class="chart-wrap" style="height:190px;"><canvas id="clsLossChart"></canvas></div>
+      <a class="chart-dl" onclick="downloadCanvas('clsLossChart','training_cls_loss.png')">Download</a>
     </div>
   </div>
   <div class="legend" id="curveLegend"></div>
@@ -175,6 +183,7 @@
 <div class="section">
   <p class="section-label">Dataset &mdash; annotation distribution per split</p>
   <div class="chart-wrap" style="height:160px;"><canvas id="distChart"></canvas></div>
+  <a class="chart-dl" onclick="downloadCanvas('distChart','dataset_distribution.png')">Download</a>
   <div class="legend" style="margin-top:10px;">
     <span class="legend-item"><span class="legend-swatch" style="background:#1D9E75;"></span>boat</span>
     <span class="legend-item"><span class="legend-swatch" style="background:#378ADD;"></span>human</span>
@@ -196,6 +205,24 @@
 </div>
 
 <script>
+// ── Canvas download helper ───────────────────────────────────────────────────
+// Chart.js renders on a transparent background; we composite onto white
+// before triggering the download so the PNG looks correct outside the browser.
+function downloadCanvas(canvasId, filename) {
+  const src  = document.getElementById(canvasId);
+  const tmp  = document.createElement('canvas');
+  tmp.width  = src.width;
+  tmp.height = src.height;
+  const ctx  = tmp.getContext('2d');
+  ctx.fillStyle = isDark ? '#1a1a18' : '#ffffff';
+  ctx.fillRect(0, 0, tmp.width, tmp.height);
+  ctx.drawImage(src, 0, 0);
+  const a    = document.createElement('a');
+  a.href     = tmp.toDataURL('image/png');
+  a.download = filename;
+  a.click();
+}
+
 const DATA = {
   "runs": [
     {
