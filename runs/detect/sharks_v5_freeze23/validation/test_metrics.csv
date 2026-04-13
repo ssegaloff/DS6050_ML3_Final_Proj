@@ -6,9 +6,17 @@ Recall,0.7545
 F1,0.7186
 boat_AP50,0.9638
 boat_AP50-95,0.8188
+boat_Precision,0.8575
+boat_Recall,0.9737
 human_AP50,0.7269
 human_AP50-95,0.4178
+human_Precision,0.7554
+human_Recall,0.6422
 other_AP50,0.3348
 other_AP50-95,0.1805
+other_Precision,0.3213
+other_Recall,0.5897
 shark_AP50,0.8968
 shark_AP50-95,0.6573
+shark_Precision,0.8968
+shark_Recall,0.8123

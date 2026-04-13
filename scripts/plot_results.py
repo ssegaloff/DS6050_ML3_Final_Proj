@@ -81,7 +81,7 @@ def add_value_labels(ax, bars):
 overall_metrics = ["mAP50", "mAP50-95", "Precision", "Recall", "F1"]
 class_metrics   = ["boat_AP50", "human_AP50", "other_AP50", "shark_AP50"]
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5.5))
 fig.suptitle("Model Comparison — Shark Detection", fontsize=14, fontweight="bold", color="#2C2C2A")
 
 x = np.arange(len(overall_metrics)) # gives evenly spaced positions for the groups of bars on the x-axis
@@ -89,7 +89,7 @@ width = 0.8 / len(run_names)  # bar width
 
 for i, (name, color) in enumerate(zip(run_names, colors)):
     values = [data[name].get(m, 0) for m in overall_metrics]
-    bars = ax1.bar(x + i * width, values, width, color=color, zorder = 3, linewidth = 0)
+    bars = ax1.bar(x + i * width, values, width, label=name, color=color, zorder = 3, linewidth = 0)
     add_value_labels(ax1, bars)
 
 
@@ -107,7 +107,7 @@ class_labels = [m.replace("_AP50", "") for m in class_metrics]
 
 for i, (name, color) in enumerate(zip(run_names, colors)):
     values = [data[name].get(m, 0) for m in class_metrics]
-    bars = ax2.bar(x2 + i * width, values, width, color=color, zorder = 3, linewidth = 0)
+    bars = ax2.bar(x2 + i * width, values, width, label=name, color=color, zorder = 3, linewidth = 0)
     add_value_labels(ax2, bars)
 
 ax2.set_title("Per-class AP50")

@@ -136,6 +136,8 @@ csv_rows = [
 for i, name in enumerate(metrics.names.values()):
     csv_rows.append({"metric": f"{name}_AP50",    "value": f"{metrics.box.ap50[i]:.4f}"})
     csv_rows.append({"metric": f"{name}_AP50-95", "value": f"{metrics.box.ap[i]:.4f}"})
+    csv_rows.append({"metric": f"{name}_Precision", "value": f"{metrics.box.p[i]:.4f}"})
+    csv_rows.append({"metric": f"{name}_Recall",    "value": f"{metrics.box.r[i]:.4f}"})
  
 with open(csv_path, "w", newline="") as f:
     writer = csv.DictWriter(f, fieldnames=["metric", "value"])
