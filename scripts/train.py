@@ -79,8 +79,8 @@ IMG_SIZE = 640
 BATCH_SIZE = 16       # standardizing to 16 to avoid crashing with unfrozen runs
 
 # FREEZE = 23             # head only trainable
-# FREEZE = 10             # Unfreeze C2PSA and neck and head
-FREEZE = 11             # head and neck only trainable
+FREEZE = 11             # upper neck + head trainable (SPPF and C2PSA remain frozen)
+# FREEZE = 10             # C2PSA + upper neck + head trainable (SPPF remains frozen)
 
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
