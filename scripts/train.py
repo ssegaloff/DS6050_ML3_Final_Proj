@@ -99,8 +99,8 @@ IMG_SIZE = 640
 BATCH_SIZE = 16       # standardizing to 16 to avoid crashing with unfrozen runs
 
 # FREEZE = 23             # head only trainable
-FREEZE = 11             # upper neck + head trainable (SPPF and C2PSA remain frozen)
-# FREEZE = 10             # C2PSA + upper neck + head trainable (SPPF remains frozen)
+# FREEZE = 11             # upper neck + head trainable (SPPF and C2PSA remain frozen)
+FREEZE = 10             # C2PSA + upper neck + head trainable (SPPF remains frozen)
 
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
@@ -136,7 +136,10 @@ if not YAML_PATH.exists():
 # model = YOLO(f"yolo26{MODEL_SIZE}.pt")
 
 # load the YOLO model with our existing weights from sharks_v5_freeze23 (for progressive unfreezing)
-model = YOLO("runs/detect/sharks_v5_freeze23/weights/best.pt")
+# model = YOLO("runs/detect/sharks_v5_freeze23/weights/best.pt")
+
+# load the YOLO model with our existing weights from sharks_v6_freeze11 (for progressive unfreezing)
+model = YOLO("runs/detect/sharks_v6_freeze11/weights/best.pt")
 
 # --- training loop ---
 results = model.train(
