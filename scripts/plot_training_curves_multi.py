@@ -2,42 +2,29 @@
 plot_training_curves_multi.py
 
 Plots training and validation curves for multiple YOLO runs overlaid on
-the same axes for direct comparison. Optionally draws a horizontal
-baseline reference line on the mAP50 panel from a test_metrics.csv.
+the same axes for direct comparison. Draws a horizontal baseline reference
+line on the mAP50 panel.
 
 Usage:
     python plot_training_curves_multi.py
-    > Enter run names, comma-separated: sharks_v5_freeze23, sharks_v5_freeze10, sharks_v5_freeze11
-
-    # With baseline reference line:
-    python plot_training_curves_multi.py --baseline runs/detect/baseline_yolo26l/validation/test_metrics.csv
+    > Enter run names, comma-separated: sharks_v5_freeze23, sharks_v6_freeze11
 
 Results are saved to:
     runs/detect/training_curves_multi.png
 '''
 
-import argparse
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from pathlib import Path
 
-# --- CLI args ---
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    '--baseline',
-    type=Path,
-    default=None,
-    help='Path to baseline test_metrics.csv to draw a reference line on the mAP50 panel.'
-)
-args = parser.parse_args()
-
 # --- configure ---
-raw = input("Enter run names, comma-separated (e.g. sharks_v5_freeze23, sharks_v5_freeze10): ").strip()
-RUN_NAMES = [r.strip() for r in raw.split(',') if r.strip()]
+BASELINE_CSV = Path("runs/detect/baseline_yolo26l/validation/test_metrics.csv")
+OUT_PATH     = Path("runs/detect/training_curves_multi.png")
 
-OUT_PATH = Path("runs/detect/training_curves_multi.png")
+raw = input("Enter run names, comma-separated (e.g. sharks_v5_freeze23, sharks_v6_freeze11): ").strip()
+RUN_NAMES = [r.strip() for r in raw.split(',') if r.strip()]
 
 if not RUN_NAMES:
     raise ValueError("No run names provided.")
@@ -52,18 +39,17 @@ PALETTES = [
 if len(RUN_NAMES) > len(PALETTES):
     raise ValueError(f"Max {len(PALETTES)} runs supported. Add more entries to PALETTES to extend.")
 
-# --- load baseline mAP50 if provided ---
+# --- load baseline mAP50 ---
 baseline_map50 = None
-if args.baseline:
-    if not args.baseline.exists():
-        print(f"[warn] Baseline CSV not found at {args.baseline} — skipping reference line.")
-    else:
-        with open(args.baseline, newline='') as f:
-            for row in csv.DictReader(f):
-                if row['metric'] == 'mAP50':
-                    baseline_map50 = float(row['value'])
-                    break
-        print(f"Baseline mAP50 loaded: {baseline_map50:.4f}")
+if not BASELINE_CSV.exists():
+    print(f"[warn] Baseline CSV not found at {BASELINE_CSV} — skipping reference line.")
+else:
+    with open(BASELINE_CSV, newline='') as f:
+        for row in csv.DictReader(f):
+            if row['metric'] == 'mAP50':
+                baseline_map50 = float(row['value'])
+                break
+    print(f"Baseline mAP50 loaded: {baseline_map50:.4f}")
 
 # --- data loading ---
 dataframes = {}
@@ -105,7 +91,6 @@ for run_name, color in zip(RUN_NAMES, PALETTES):
         ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True, nbins=6))
         ax.spines[['top', 'right']].set_visible(False)
 
-    # mAP50 panel
     ax = axes[3]
     ax.plot(epochs, smooth(df['metrics/mAP50(B)']), color=color, linewidth=2,
             label=f'{run_name} val mAP50')
@@ -115,7 +100,6 @@ for run_name, color in zip(RUN_NAMES, PALETTES):
     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True, nbins=6))
     ax.spines[['top', 'right']].set_visible(False)
 
-# draw baseline reference line on mAP50 panel after all runs
 if baseline_map50 is not None:
     axes[3].axhline(
         y=baseline_map50,
