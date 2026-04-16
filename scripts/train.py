@@ -116,7 +116,10 @@ if not YAML_PATH.exists():
 
 # --- initialize model ---
 # load a pretrained YOLO large model
-model = YOLO(f"yolo26{MODEL_SIZE}.pt")
+# model = YOLO(f"yolo26{MODEL_SIZE}.pt")
+
+# load the YOLO model with our existing weights from freeze23
+model = YOLO("runs/detect/sharks_v5_freeze23/weights/best.pt")
 
 # --- training loop ---
 results = model.train(
