@@ -1,17 +1,37 @@
 '''
 train.py
 
-Fine-tunes a pretrained YOLO26 model of specified size on the shark detection
-dataset using tuned MuSGD hyperparameters and mosaic/augmentation settings
-selected by hyperparameter_search.py.
+Fine-tunes a pretrained YOLO26l model on the shark detection dataset using
+tuned MuSGD hyperparameters and mosaic/augmentation settings selected by
+hyperparameter_search.py.
 
-The backbone is frozen for the first phase of training (FREEZE = 23).
-To unfreeze C2PSA, neck, and head layers for a second-phase run, set FREEZE = 10 
-and drop LR0 by 10x (see commented values in the config section).
+Training follows a progressive unfreezing strategy across three phases:
+
+    Phase 1 — Head only (FREEZE = 23, LR0 = 0.01329)
+        Only the detection head is trainable. Backbone and neck are fully frozen.
+        Used for the initial fine-tuning run (sharks_v5_freeze23), starting from
+        COCO pretrained weights.
+
+    Phase 2 — Upper neck + head (FREEZE = 11, LR0 = 0.001329)
+        Unfreezes the upper neck (upsample / concat / C3k2 blocks) in addition
+        to the head. SPPF and C2PSA remain frozen. LR0 is dropped 10x to avoid
+        destabilizing weights already tuned in Phase 1.
+
+    Phase 3 — C2PSA + upper neck + head (FREEZE = 10, LR0 = 0.001329)
+        Additionally unfreezes C2PSA. SPPF remains frozen. This isolates the
+        effect of C2PSA unfreezing from SPPF unfreezing, enabling a direct
+        causal argument about what drives changes in shark AP50.
+
+For the sharks_v5 series, each phase trains from COCO weights independently.
+For the sharks_v6 series, phases are chained: v6_freeze11 is initialized from
+sharks_v5_freeze23 weights, and v6_freeze10 is initialized from v6_freeze11 weights.
+
+All runs use identical hyperparameters, seed, batch size (16), epochs (300),
+and patience (20). Only the freeze point, LR0, and weight initialization differ.
 
 Usage:
     python train.py
-    > Enter run name (e.g. shark_v2_unfrozen): sharks_v1_frozen
+    > Enter run name (e.g. sharks_v6_freeze11): sharks_v6_freeze11
 
     If no name is entered, the run is timestamped automatically.
 
@@ -30,9 +50,6 @@ Results are saved to:
         (plots, confusion matrix, etc.)
 '''
 
-
-
-# TODO: update for shared configs if we want
 
 import os
 import torch
@@ -82,8 +99,8 @@ IMG_SIZE = 640
 BATCH_SIZE = 16       # standardizing to 16 to avoid crashing with unfrozen runs
 
 # FREEZE = 23             # head only trainable
-# FREEZE = 10             # Unfreeze C2PSA and neck and head
-FREEZE = 11             # head and neck only trainable
+# FREEZE = 11             # upper neck + head trainable (SPPF and C2PSA remain frozen)
+FREEZE = 10             # C2PSA + upper neck + head trainable (SPPF remains frozen)
 
 default = datetime.now().strftime("%Y%m%d_%H%M%S")
 RUN_NAME = input("Enter run name (e.g. shark_v2_unfrozen): ").strip() or default
@@ -119,7 +136,10 @@ if not YAML_PATH.exists():
 # model = YOLO(f"yolo26{MODEL_SIZE}.pt")
 
 # load the YOLO model with our existing weights from sharks_v5_freeze23 (for progressive unfreezing)
-model = YOLO("runs/detect/sharks_v5_freeze23/weights/best.pt")
+# model = YOLO("runs/detect/sharks_v5_freeze23/weights/best.pt")
+
+# load the YOLO model with our existing weights from sharks_v6_freeze11 (for progressive unfreezing)
+model = YOLO("runs/detect/sharks_v6_freeze11/weights/best.pt")
 
 # --- training loop ---
 results = model.train(

@@ -16,7 +16,6 @@ Usage:
         
 '''
 
-# TODO: update for shared configs if desired
 
 import torch
 import os

@@ -9,8 +9,8 @@ Usage:
 
 Results are saved to:
     runs/detect/baseline_yolo26l/validation/
-        test_metrics.txt   — human-readable summary
-        test_metrics.csv   — machine-readable summary
+        test_metrics.txt
+        test_metrics.csv
 '''
 
 import os

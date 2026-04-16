@@ -4,6 +4,9 @@ dashboard.py
 Generates a self-contained HTML results dashboard for the Team Toothless
 shark detection project.
 
+Attribution: Please note that the Claude LLM was utilized to help draft the 
+HTML/CSS/JS structure and styling of this dashboard.
+
 Sections:
   - Summary cards (mAP50, Recall, Precision, F1 per run)
   - Overall metrics | Per-class AP50 | Per-class Recall bar charts
