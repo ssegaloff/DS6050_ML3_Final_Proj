@@ -23,7 +23,7 @@ Each step isolates one decision, which lets us make a direct causal argument in 
 Across runs 2, 3, and 4 we have the same hyperparameters, same seed, same epochs. The only thing changing is the freeze point, and the learning rate. (I am even keeping batch size the same for safety). (Note: LR0 changes to be 10x smaller for freeze=10 and freeze=11)
 
 
-I did this once where each training was from COCO weights. (sharks_v5...) I will subsequently be doing a series of runs where we use the weights from freeze=23 for our train with freeze=11, and the output weight of that with our train with freeze=10.
+I did this once where each training was from COCO weights (sharks_v5...). I will subsequently be doing a series of runs where we use the weights from freeze=23 for our train with freeze=11, and the output weight of that with our train with freeze=10.
 
 I have begun sharks_v6:
 - I took the model weights from sharks_v5_freeze23 (trained from COCO, all but head frozen) and am training sharks_v6_freeze11 which has unfrozen the neck layers in addition to the head.
