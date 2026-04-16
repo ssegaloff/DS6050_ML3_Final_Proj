@@ -31,9 +31,6 @@ Results are saved to:
 '''
 
 
-
-# TODO: update for shared configs if we want
-
 import os
 import torch
 from datetime import datetime

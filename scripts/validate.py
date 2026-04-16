@@ -11,13 +11,12 @@ Usage:
 
     Results are saved to:
         runs/detect/<run_name>/validation/
-            test_metrics.txt   — human-readable summary
-            test_metrics.csv   — machine-readable summary
+            test_metrics.txt
+            test_metrics.csv
         
         runs/detect/<run_name>/validation/
             (Ultralytics plots: confusion matrix, PR curve, etc.)
 '''
-# TODO: update for shared configs if desired
 
 import os
 import csv
