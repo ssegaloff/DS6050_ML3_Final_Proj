@@ -15,8 +15,8 @@ Only the freeze point and LR0 differ (0.01329 for run 2, 0.001329 for run 3).
 
 This will help meet the rubric's criteria for Analysis and Interpretation: "discusses the limitations of the analysis" and "analyses map back to the hypotheses." 
 
-I will isolate one variable (C2PSA unfreezing) instead of 2 (C2PSA and SPPF unfreezing) so that I don't confuse what is driving the change.
+I will isolate one variable (C2PSA unfreezing) instead of 2 (C2PSA and SPPF unfreezing) so that I don't confuse what is driving the change. (well, really there are also 10-23 that are unfrozen so we still have some confusion here?)
 
-Each step isolates one decision, which lets us make a direct causal argument in our report about what drove improvement in shark AP50 specifically.
+Each step isolates one decision (well, technically it doesn't because of the layers plus c2psa), which lets us make a direct causal argument in our report about what drove improvement in shark AP50 specifically.
 
 Across runs 2 and 3 we have the same hyperparameters, same seed, same epochs. The only thing changing is the freeze point, and the learning rate. (I am even keeping batch size the same for safety). (Note: LR0 changes to be 10x smaller for freeze=10)
