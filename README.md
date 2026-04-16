@@ -1,6 +1,8 @@
 # ML III Group Project: Team Toothless!
 
-Welcome to the project! 
+Welcome to the project!
+
+The first section of this README deals with Git and virtual environments. The second section provides links to the model weights and tuning results.
 
 We are using `uv` to manage our Python environment and dependencies. This ensures that everyone on the team is using the exact same version of Python and the exact same package versions, preventing "it works on my machine" bugs.
 
@@ -67,3 +69,12 @@ uv add <package_name>
 ```
 
 This will install the package and automatically update the `pyproject.toml` and `uv.lock` files. **You must commit and push these two files** so that when the rest of the team runs `git pull` and `uv sync`, they get the new package too!
+
+
+## Model Weights
+Fine-tuned weights are not stored in this repo. Download from:
+- sharks_v5_freeze23: [Google Drive link]
+- sharks_v5_freeze11: [Google Drive link]
+- sharks_v5_freeze10: [Google Drive link]
+
+## Tuning Results

@@ -21,6 +21,7 @@ RUNS = {
     "baseline": Path("runs/detect/baseline_yolo26l/validation/test_metrics.csv"),
     "freeze23":  Path("runs/detect/sharks_v5_freeze23/validation/test_metrics.csv"),
     "freeze10":  Path("runs/detect/sharks_v5_freeze10/validation/test_metrics.csv"),
+    "freeze11":  Path("runs/detect/sharks_v5_freeze11/validation/test_metrics.csv"),
 }
 
 def load_metrics(csv_path):
@@ -33,7 +34,7 @@ def load_metrics(csv_path):
 
 
 run_names = list(RUNS.keys())
-colors = ["#888780", "#378ADD", "#1D9E75"]  # baseline, freeze23, freeze10
+colors = ["#888780", "#378ADD", "#1D9E75", "#9B6DD6"]  # baseline, freeze23, freeze10, freeze11
 
 # validate all paths exist
 for name, path in RUNS.items():
