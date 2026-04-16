@@ -2,21 +2,36 @@
 plot_training_curves_multi.py
 
 Plots training and validation curves for multiple YOLO runs overlaid on
-the same axes for direct comparison. Raw lines are omitted to keep the
-chart readable — use plot_training_curves.py for single-run inspection.
+the same axes for direct comparison. Optionally draws a horizontal
+baseline reference line on the mAP50 panel from a test_metrics.csv.
 
 Usage:
     python plot_training_curves_multi.py
-    > Enter run names, comma-separated: sharks_v5_freeze23, sharks_v5_freeze10
+    > Enter run names, comma-separated: sharks_v5_freeze23, sharks_v5_freeze10, sharks_v5_freeze11
+
+    # With baseline reference line:
+    python plot_training_curves_multi.py --baseline runs/detect/baseline_yolo26l/validation/test_metrics.csv
 
 Results are saved to:
     runs/detect/training_curves_multi.png
 '''
 
+import argparse
+import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from pathlib import Path
+
+# --- CLI args ---
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '--baseline',
+    type=Path,
+    default=None,
+    help='Path to baseline test_metrics.csv to draw a reference line on the mAP50 panel.'
+)
+args = parser.parse_args()
 
 # --- configure ---
 raw = input("Enter run names, comma-separated (e.g. sharks_v5_freeze23, sharks_v5_freeze10): ").strip()
@@ -27,8 +42,6 @@ OUT_PATH = Path("runs/detect/training_curves_multi.png")
 if not RUN_NAMES:
     raise ValueError("No run names provided.")
 
-# one colour per run — train is solid, val is dashed, same color
-# add more entries here if comparing more than 4 runs
 PALETTES = [
     '#378ADD',  # blue
     '#D85A30',  # red-orange
@@ -37,7 +50,20 @@ PALETTES = [
 ]
 
 if len(RUN_NAMES) > len(PALETTES):
-    raise ValueError(f"Max {len(PALETTES)} runs supported. Add more color entries to PALETTES to extend.")
+    raise ValueError(f"Max {len(PALETTES)} runs supported. Add more entries to PALETTES to extend.")
+
+# --- load baseline mAP50 if provided ---
+baseline_map50 = None
+if args.baseline:
+    if not args.baseline.exists():
+        print(f"[warn] Baseline CSV not found at {args.baseline} — skipping reference line.")
+    else:
+        with open(args.baseline, newline='') as f:
+            for row in csv.DictReader(f):
+                if row['metric'] == 'mAP50':
+                    baseline_map50 = float(row['value'])
+                    break
+        print(f"Baseline mAP50 loaded: {baseline_map50:.4f}")
 
 # --- data loading ---
 dataframes = {}
@@ -50,7 +76,7 @@ for run_name in RUN_NAMES:
     dataframes[run_name] = df
 
 def smooth(series):
-    """Exponential moving average. alpha=0.4 matches weight=0.6 in the manual loop."""
+    """Exponential moving average."""
     return series.ewm(alpha=0.4, adjust=False).mean()
 
 # --- plotting ---
@@ -69,30 +95,36 @@ for run_name, color in zip(RUN_NAMES, PALETTES):
 
     for i, (metric, title) in enumerate(metric_pairs):
         ax = axes[i]
-        train_col = f'train/{metric}'
-        val_col   = f'val/{metric}'
-
-        ax.plot(epochs, smooth(df[train_col]), color=color, linewidth=2,                 label=f'{run_name} train')
-        ax.plot(epochs, smooth(df[val_col]),   color=color, linewidth=2, linestyle='--', label=f'{run_name} val')
-
+        ax.plot(epochs, smooth(df[f'train/{metric}']), color=color, linewidth=2,
+                label=f'{run_name} train')
+        ax.plot(epochs, smooth(df[f'val/{metric}']),   color=color, linewidth=2,
+                linestyle='--', label=f'{run_name} val')
         ax.set_title(title, fontsize=11)
         ax.set_xlabel('Epoch', fontsize=9)
         ax.tick_params(labelsize=8)
         ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True, nbins=6))
         ax.spines[['top', 'right']].set_visible(False)
 
-    # 4th panel: mAP50 (val only — no train equivalent)
+    # mAP50 panel
     ax = axes[3]
-    map_col = 'metrics/mAP50(B)'
-    ax.plot(epochs, smooth(df[map_col]), color=color, linewidth=2, label=f'{run_name} val mAP50')
-
+    ax.plot(epochs, smooth(df['metrics/mAP50(B)']), color=color, linewidth=2,
+            label=f'{run_name} val mAP50')
     ax.set_title('Val mAP50', fontsize=11)
     ax.set_xlabel('Epoch', fontsize=9)
     ax.tick_params(labelsize=8)
     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True, nbins=6))
     ax.spines[['top', 'right']].set_visible(False)
 
-# draw legends after all runs are plotted so entries group naturally
+# draw baseline reference line on mAP50 panel after all runs
+if baseline_map50 is not None:
+    axes[3].axhline(
+        y=baseline_map50,
+        color='#888780',
+        linewidth=1.5,
+        linestyle=':',
+        label=f'baseline (test) {baseline_map50:.3f}'
+    )
+
 for ax in axes:
     ax.legend(fontsize=7, frameon=False)
 
