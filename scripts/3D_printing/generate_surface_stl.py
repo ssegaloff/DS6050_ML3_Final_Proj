@@ -44,7 +44,7 @@ DATA_CSV   = Path("runs/detect/tune_sweep_results/01_broad_musgd/tune_results.cs
 OUTPUT_DIR = Path("stl_output")
 
 GRID_N     = 60      # grid resolution — 60 gives smooth surface
-PRINT_SIZE = 150.0   # mm — square footprint
+PRINT_SIZE = 100.0   # mm — square footprint
 BASE_H     = 3.0     # mm — solid base below lowest fitness point
 SURFACE_H  = 45.0    # mm — total height range mapped across fitness
 N_BANDS    = 4       # number of color bands
