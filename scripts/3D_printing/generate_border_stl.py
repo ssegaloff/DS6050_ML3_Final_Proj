@@ -40,9 +40,9 @@ BORDER_W   = 10.0    # mm — width of border apron on each side
 BORDER_H   = 3.0     # mm — thickness of border slab
 
 # Tick mark geometry
-TICK_W     = 1.0     # mm — tick width
-TICK_L     = 5.0     # mm — tick length (extends inward from outer edge)
-TICK_H     = 1.5     # mm — tick height above border top face
+TICK_W     = 1.0              # mm — tick width
+TICK_L     = BORDER_W * 0.28  # mm — tick length (~28% of border width; scales with BORDER_W)
+TICK_H     = 1.5              # mm — tick height above border top face
 
 # Axis ranges — must match generate_surface_stl.py data
 LR0_MIN, LR0_MAX = 0.010, 0.0356
