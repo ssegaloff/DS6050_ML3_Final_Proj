@@ -220,14 +220,14 @@ def make_band_tris(band_idx, h_lo, h_hi, heights, xs, ys):
 
 # ── Cylinder as Manifold ───────────────────────────────────────────────────────
 
-def make_cylinder_manifold(cx, cy, base_z, radius, height, sides):
+def make_cylinder_manifold(cx, cy, base_z, radius, height, sides, band_floor):
     """
     Build a cylinder using manifold3d's built-in constructor (guaranteed manifold),
     then translate into position. Embeds DOT_EMBED mm below the surface so
     the union is a proper intersection rather than a tangent touch.
     """
-    actual_base = base_z - DOT_EMBED
-    total_height = height + DOT_EMBED
+    actual_base = band_floor
+    total_height = (base_z - band_floor) + height  # from band floor up through terrain to pin top
     cyl = Manifold.cylinder(total_height, radius, radius, sides)
     cyl = cyl.translate([cx, cy, actual_base])
     return cyl
@@ -269,7 +269,7 @@ for b in range(N_BANDS):
         r = PIN_R if is_best else DOT_R
         h = (DOT_H + PIN_H) if is_best else DOT_H
 
-        cyl_m = make_cylinder_manifold(cx, cy, cz, r, h, PIN_SIDES)
+        cyl_m = make_cylinder_manifold(cx, cy, cz, r, h, PIN_SIDES, h_lo)
         band_m = band_m + cyl_m  # boolean union
         marker_count += 1
 
