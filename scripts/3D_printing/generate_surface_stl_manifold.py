@@ -42,6 +42,7 @@ BASE_H     = 3.0     # mm — solid base below lowest fitness point
 SURFACE_H  = 45.0    # mm — total height range mapped across fitness
 N_BANDS    = 4       # number of color bands
 
+DOT_EMBED  = 2.0     # mm — how far cylinders embed into terrain surface for clean boolean union
 DOT_R_MIN  = 1.0     # mm — radius of lowest-fitness dot
 DOT_R_MAX  = 1.4     # mm — radius of highest-fitness dot (excluding best)
 PIN_R      = 2.0     # mm — radius of best-point pin (wider to stand out)
