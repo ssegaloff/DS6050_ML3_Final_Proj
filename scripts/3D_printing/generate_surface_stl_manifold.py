@@ -222,14 +222,21 @@ def make_band_tris(band_idx, h_lo, h_hi, heights, xs, ys):
 
 def make_cylinder_manifold(cx, cy, base_z, radius, height, sides, band_floor):
     """
-    Build a cylinder using manifold3d's built-in constructor (guaranteed manifold),
-    then translate into position. Embeds DOT_EMBED mm below the surface so
-    the union is a proper intersection rather than a tangent touch.
+    Build a cylinder using manifold3d's built-in constructor, rooted at band_floor
+    and clipped to the terrain footprint so edge-adjacent markers don't overhang.
     """
     actual_base = band_floor
-    total_height = (base_z - band_floor) + height  # from band floor up through terrain to pin top
+    total_height = (base_z - band_floor) + height
+
     cyl = Manifold.cylinder(total_height, radius, radius, sides)
     cyl = cyl.translate([cx, cy, actual_base])
+
+    # Clip to terrain footprint — removes any overhang beyond the terrain edges
+    # so edge-adjacent markers don't require supports.
+    clip_box = Manifold.cube([PRINT_SIZE, PRINT_SIZE, total_height + 1.0])
+    clip_box = clip_box.translate([0.0, 0.0, actual_base - 0.5])
+    cyl = cyl ^ clip_box  # intersection
+
     return cyl
 
 
