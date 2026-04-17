@@ -42,11 +42,11 @@ BASE_H     = 3.0     # mm — solid base below lowest fitness point
 SURFACE_H  = 45.0    # mm — total height range mapped across fitness
 N_BANDS    = 4       # number of color bands
 
-DOT_R      = 1.2     # mm — radius of sweep-point dots
-DOT_H      = 1.5     # mm — height of dots above surface
-DOT_EMBED  = 2.0     # mm — how far dots embed into surface (anchors them)
-PIN_R      = 1.8     # mm — radius of best-point pin
-PIN_H      = 6.0     # mm — extra height of best-point pin
+DOT_R_MIN  = 1.0     # mm — radius of lowest-fitness dot
+DOT_R_MAX  = 1.4     # mm — radius of highest-fitness dot (excluding best)
+PIN_R      = 2.0     # mm — radius of best-point pin (wider to stand out)
+PIN_H_MIN  = 1.0     # mm — pin height for lowest fitness point
+PIN_H_MAX  = 8.0     # mm — pin height for highest fitness point
 PIN_SIDES  = 16      # polygon sides for dots/pins (higher = smoother)
 
 
@@ -225,10 +225,11 @@ def make_cylinder_manifold(cx, cy, base_z, radius, height, sides, band_floor):
     Build a cylinder using manifold3d's built-in constructor, rooted at band_floor
     and clipped to the terrain footprint so edge-adjacent markers don't overhang.
     """
-    # Root cylinder at terrain surface (cz), not band floor — prevents the
-    # cylinder from poking through the band's shaped underside.
-    actual_base = base_z
-    total_height = height
+    # Embed DOT_EMBED mm into the terrain surface so the boolean union has
+    # real intersection volume to work with, clamped to band_floor so it
+    # never pokes through the band underside.
+    actual_base = max(base_z - DOT_EMBED, band_floor)
+    total_height = height + (base_z - actual_base)
 
     cyl = Manifold.cylinder(total_height, radius, radius, sides)
     cyl = cyl.translate([cx, cy, actual_base])
@@ -275,8 +276,16 @@ for b in range(N_BANDS):
             continue
 
         is_best = (d['lr0'] == best['lr0'] and d['mom'] == best['mom'])
-        r = PIN_R if is_best else DOT_R
-        h = (DOT_H + PIN_H) if is_best else DOT_H
+
+        # Scale pin height proportionally to fitness across all points
+        fit_norm = (d['fit'] - FIT_MIN) / (FIT_MAX - FIT_MIN)
+        h = PIN_H_MIN + fit_norm * (PIN_H_MAX - PIN_H_MIN)
+
+        # Best point gets wider radius to stand out; others scale subtly with fitness
+        if is_best:
+            r = PIN_R
+        else:
+            r = DOT_R_MIN + fit_norm * (DOT_R_MAX - DOT_R_MIN)
 
         cyl_m = make_cylinder_manifold(cx, cy, cz, r, h, PIN_SIDES, h_lo)
         band_m = band_m + cyl_m  # boolean union
