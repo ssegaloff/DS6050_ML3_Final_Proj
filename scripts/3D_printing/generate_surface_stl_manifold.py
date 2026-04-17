@@ -225,8 +225,10 @@ def make_cylinder_manifold(cx, cy, base_z, radius, height, sides, band_floor):
     Build a cylinder using manifold3d's built-in constructor, rooted at band_floor
     and clipped to the terrain footprint so edge-adjacent markers don't overhang.
     """
-    actual_base = band_floor
-    total_height = (base_z - band_floor) + height
+    # Root cylinder at terrain surface (cz), not band floor — prevents the
+    # cylinder from poking through the band's shaped underside.
+    actual_base = base_z
+    total_height = height
 
     cyl = Manifold.cylinder(total_height, radius, radius, sides)
     cyl = cyl.translate([cx, cy, actual_base])
@@ -283,12 +285,20 @@ for b in range(N_BANDS):
     print(f"    Unioned {marker_count} markers")
     write_stl_from_manifold(band_m, OUTPUT_DIR / f"band_{BAND_LABELS[b]}.stl")
 
-print(f"\nDone! 4 STL files written to: {OUTPUT_DIR}/")
+# ── White base slab ───────────────────────────────────────────────────────────
+# Flat slab from Z=0 to Z=BASE_H covering the full terrain footprint.
+# Print in white — gives a clean foundation the border and bands sit on.
+print("\n  Generating white base slab...")
+base_slab = Manifold.cube([PRINT_SIZE, PRINT_SIZE, BASE_H])
+write_stl_from_manifold(base_slab, OUTPUT_DIR / "base_white.stl")
+
+print(f"\nDone! 5 STL files written to: {OUTPUT_DIR}/")
 print("""
 ── Bambu Slicer workflow ───────────────────────────────────────────
-1. File -> Import -> select all 4 band_*.stl files at once
+1. File -> Import -> select all 5 STL files at once (4 bands + base_white.stl)
 2. Right-click the object -> Assemble into one object
 3. Assign one filament color per body:
+     base_white     ->  white
      band_1_valley  ->  dark teal / navy
      band_2_low     ->  mid blue or grey
      band_3_high    ->  orange
