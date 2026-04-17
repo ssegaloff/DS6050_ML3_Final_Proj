@@ -221,24 +221,16 @@ def make_band_tris(band_idx, h_lo, h_hi, heights, xs, ys):
 # ── Cylinder as Manifold ───────────────────────────────────────────────────────
 
 def make_cylinder_manifold(cx, cy, base_z, radius, height, sides):
-    """Build a cylinder as triangle soup then convert to Manifold."""
-    angles = [2 * math.pi * k / sides for k in range(sides)]
-    # Embed slightly below surface so it's guaranteed to intersect the band
+    """
+    Build a cylinder using manifold3d's built-in constructor (guaranteed manifold),
+    then translate into position. Embeds DOT_EMBED mm below the surface so
+    the union is a proper intersection rather than a tangent touch.
+    """
     actual_base = base_z - DOT_EMBED
-    top_z = base_z + height
-    tris = []
-
-    for k in range(sides):
-        a0, a1 = angles[k], angles[(k+1) % sides]
-        b0 = (cx + radius*math.cos(a0), cy + radius*math.sin(a0), actual_base)
-        b1 = (cx + radius*math.cos(a1), cy + radius*math.sin(a1), actual_base)
-        t0 = (cx + radius*math.cos(a0), cy + radius*math.sin(a0), top_z)
-        t1 = (cx + radius*math.cos(a1), cy + radius*math.sin(a1), top_z)
-        tris.append((b0, t1, b1)); tris.append((b0, t0, t1))
-        tris.append(((cx, cy, top_z),  t0, t1))
-        tris.append(((cx, cy, actual_base), b1, b0))
-
-    return tris_to_manifold(tris)
+    total_height = height + DOT_EMBED
+    cyl = Manifold.cylinder(total_height, radius, radius, sides)
+    cyl = cyl.translate([cx, cy, actual_base])
+    return cyl
 
 
 # ── Generate all band STLs with boolean union ──────────────────────────────────
