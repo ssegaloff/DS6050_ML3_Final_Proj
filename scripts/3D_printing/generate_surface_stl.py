@@ -262,7 +262,8 @@ def make_cylinder(cx, cy, base_z, radius, height, sides):
     return tris
 
 
-def make_markers(rows, xs_scale, ys_scale):
+def make_markers_for_band(rows, xs_scale, ys_scale, h_lo, h_hi, is_top_band):
+    """Return marker triangles whose base height falls within this band."""
     tris = []
     for d in rows:
         lrN  = norm_lr(d['lr0'])
@@ -270,6 +271,11 @@ def make_markers(rows, xs_scale, ys_scale):
         cx   = lrN * xs_scale
         cy   = momN * ys_scale
         cz   = BASE_H + idw(lrN, momN) * SURFACE_H
+
+        # Assign to the band containing cz; top band uses >= to catch the peak
+        in_band = (h_lo <= cz < h_hi) or (is_top_band and cz >= h_lo)
+        if not in_band:
+            continue
 
         is_best = (d['lr0'] == best['lr0'] and d['mom'] == best['mom'])
         r = PIN_R if is_best else DOT_R
@@ -284,16 +290,15 @@ def make_markers(rows, xs_scale, ys_scale):
 BAND_LABELS = ['1_valley', '2_low', '3_high', '4_peak']
 
 print(f"\nGenerating band STLs...")
-all_marker_tris = make_markers(rows, PRINT_SIZE, PRINT_SIZE)
 
 for b in range(N_BANDS):
     h_lo = band_edges[b]
     h_hi = band_edges[b + 1]
 
     tris = make_band(b, h_lo, h_hi, heights, xs, ys)
-
-    if b == N_BANDS - 1:
-        tris.extend(all_marker_tris)
+    tris.extend(make_markers_for_band(
+        rows, PRINT_SIZE, PRINT_SIZE, h_lo, h_hi, is_top_band=(b == N_BANDS - 1)
+    ))
 
     write_stl(tris, OUTPUT_DIR / f"band_{BAND_LABELS[b]}.stl")
 
