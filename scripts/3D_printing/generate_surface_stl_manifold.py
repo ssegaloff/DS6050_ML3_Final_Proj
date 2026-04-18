@@ -38,9 +38,10 @@ OUTPUT_DIR = Path("stl_output")
 
 GRID_N     = 60      # grid resolution
 PRINT_SIZE = 100.0   # mm — square footprint
-BASE_H     = 3.0     # mm — solid base below lowest fitness point
+BASE_H     = 3.24     # mm — solid base below lowest fitness point
 SURFACE_H  = 45.0    # mm — total height range mapped across fitness
 N_BANDS    = 4       # number of color bands
+BORDER_W = 10.0      # mm — must match generate_border_stl.py
 
 DOT_EMBED  = 2.0     # mm — how far cylinders embed into terrain surface for clean boolean union
 DOT_R_MIN  = 1.0     # mm — radius of lowest-fitness dot
@@ -235,10 +236,14 @@ def make_cylinder_manifold(cx, cy, base_z, radius, height, sides, band_floor):
     cyl = Manifold.cylinder(total_height, radius, radius, sides)
     cyl = cyl.translate([cx, cy, actual_base])
 
-    # Clip to terrain footprint — removes any overhang beyond the terrain edges
-    # so edge-adjacent markers don't require supports.
-    clip_box = Manifold.cube([PRINT_SIZE, PRINT_SIZE, total_height + 1.0])
-    clip_box = clip_box.translate([0.0, 0.0, actual_base - 0.5])
+    # Clip to terrain footprint in XY and to band_floor in Z.
+    # XY clip removes edge overhangs; Z clip removes any part of the embedded
+    # stem that pokes through the band's shaped underside.
+    # clip_h must reach the pin top: (actual_base + total_height) - band_floor + margin
+    pin_top = actual_base + total_height
+    clip_h = (pin_top - band_floor) + 1.0
+    clip_box = Manifold.cube([PRINT_SIZE, PRINT_SIZE, clip_h])
+    clip_box = clip_box.translate([0.0, 0.0, band_floor])
     cyl = cyl ^ clip_box  # intersection
 
     return cyl
@@ -299,7 +304,9 @@ for b in range(N_BANDS):
 # Flat slab from Z=0 to Z=BASE_H covering the full terrain footprint.
 # Print in white — gives a clean foundation the border and bands sit on.
 print("\n  Generating white base slab...")
-base_slab = Manifold.cube([PRINT_SIZE, PRINT_SIZE, BASE_H])
+full_w = PRINT_SIZE + 2 * BORDER_W
+base_slab = Manifold.cube([full_w, full_w, BASE_H])
+base_slab = base_slab.translate([-BORDER_W, -BORDER_W, 0.0])
 write_stl_from_manifold(base_slab, OUTPUT_DIR / "base_white.stl")
 
 print(f"\nDone! 5 STL files written to: {OUTPUT_DIR}/")

@@ -34,14 +34,14 @@ from pathlib import Path
 # ── Configuration — must match generate_surface_stl.py ───────────────────────
 
 PRINT_SIZE = 100.0   # mm — terrain footprint (square)
-BASE_H     = 3.0     # mm — terrain base height (border sits here)
+BASE_H     = 3.24     # mm — terrain base height (border sits here)
 
 BORDER_W   = 10.0    # mm — width of border apron on each side
 BORDER_H   = 3.0     # mm — thickness of border slab
 
 # Tick mark geometry
 TICK_W     = 1.0              # mm — tick width
-TICK_L     = BORDER_W * 0.28  # mm — tick length (~28% of border width; scales with BORDER_W)
+TICK_L     = 3                # mm — tick length
 TICK_H     = 1.5              # mm — tick height above border top face
 
 # Axis ranges — must match generate_surface_stl.py data
@@ -108,28 +108,29 @@ def make_box(x0, y0, z0, x1, y1, z1):
 
 # ── Border geometry ────────────────────────────────────────────────────────────
 
-def make_border():
+def make_border_frame():
+    """Frame slabs only — no ticks. Print in a neutral color."""
     tris = []
-
     BW  = BORDER_W
     PS  = PRINT_SIZE
-    Z0  = BASE_H              # bottom of border (aligns with terrain base)
-    Z1  = BASE_H + BORDER_H   # top of border slab
-    ZT  = Z1 + TICK_H         # top of tick marks
+    Z0  = BASE_H
+    Z1  = BASE_H + BORDER_H
 
-    # ── Frame slabs (4 pieces, corners included in south and north) ───────────
-
-    # South slab (includes SW and SE corners)
-    tris.extend(make_box(-BW, -BW, Z0,  PS+BW, 0,    Z1))
-    # North slab (includes NW and NE corners)
+    tris.extend(make_box(-BW, -BW, Z0,  PS+BW, 0,     Z1))
     tris.extend(make_box(-BW, PS,  Z0,  PS+BW, PS+BW, Z1))
-    # West slab
     tris.extend(make_box(-BW, 0,   Z0,  0,     PS,    Z1))
-    # East slab
     tris.extend(make_box(PS,  0,   Z0,  PS+BW, PS,    Z1))
+    return tris
 
-    # ── lr0 tick marks on south border top face ───────────────────────────────
-    # Ticks run parallel to Y (extending from y=0 inward toward y=-TICK_L)
+
+def make_ticks():
+    """Tick marks and corner notch only — print in a contrasting color."""
+    tris = []
+    PS  = PRINT_SIZE
+    Z1  = BASE_H + BORDER_H
+    ZT  = Z1 + TICK_H
+
+    # lr0 ticks on south border top face
     for lr0_val in LR0_TICKS:
         x = ((lr0_val - LR0_MIN) / (LR0_MAX - LR0_MIN)) * PS
         tris.extend(make_box(
@@ -137,8 +138,7 @@ def make_border():
             x + TICK_W/2,  0,      ZT
         ))
 
-    # ── momentum tick marks on west border top face ───────────────────────────
-    # Ticks run parallel to X (extending from x=0 inward toward x=-TICK_L)
+    # momentum ticks on west border top face
     for mom_val in MOM_TICKS:
         y = ((mom_val - MOM_MIN) / (MOM_MAX - MOM_MIN)) * PS
         tris.extend(make_box(
@@ -146,21 +146,19 @@ def make_border():
             0,       y + TICK_W/2, ZT
         ))
 
-    # ── Corner notch markers (small raised squares at axis origins) ───────────
-    # SW corner — origin of both axes
+    # SW corner notch — origin of both axes
     tris.extend(make_box(-4, -4, Z1, -1, -1, ZT + 0.5))
-
     return tris
 
 
 # ── Generate and save ──────────────────────────────────────────────────────────
 
-tris = make_border()
-write_stl(tris, OUTPUT_DIR / "border.stl")
+write_stl(make_border_frame(), OUTPUT_DIR / "border_frame.stl")
+write_stl(make_ticks(),        OUTPUT_DIR / "border_ticks.stl")
 
 print(f"""
 ── Bambu Slicer text label guide ───────────────────────────────────
-After importing border.stl alongside your 4 band STLs:
+After importing border_frame.stl and border_ticks.stl alongside your other STLs:
 
 1. Right-click the south outer face (front wall) -> Add Text
        Text:  "lr0"
