@@ -37,7 +37,7 @@ PRINT_SIZE = 100.0   # mm — terrain footprint (square)
 BASE_H     = 3.24     # mm — terrain base height (border sits here)
 
 BORDER_W   = 10.0    # mm — width of border apron on each side
-BORDER_H   = 3.0     # mm — thickness of border slab
+BORDER_H   = 2.0     # mm — thickness of border slab
 
 # Tick mark geometry
 TICK_W     = 1.0              # mm — tick width
