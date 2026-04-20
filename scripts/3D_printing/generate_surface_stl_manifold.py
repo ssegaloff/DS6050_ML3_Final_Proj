@@ -48,7 +48,7 @@ DOT_R_MIN  = 1.0     # mm — radius of lowest-fitness dot
 DOT_R_MAX  = 1.4     # mm — radius of highest-fitness dot (excluding best)
 PIN_R      = 2.0     # mm — radius of best-point pin (wider to stand out)
 PIN_H_MIN  = 1.0     # mm — pin height for lowest fitness point
-PIN_H_MAX  = 8.0     # mm — pin height for highest fitness point
+PIN_H_MAX  = 9.0     # mm — pin height for highest fitness point
 PIN_SIDES  = 16      # polygon sides for dots/pins (higher = smoother)
 
 
