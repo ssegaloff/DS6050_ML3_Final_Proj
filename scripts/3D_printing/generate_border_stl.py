@@ -33,7 +33,7 @@ from pathlib import Path
 
 # ── Configuration — must match generate_surface_stl.py ───────────────────────
 
-PRINT_SIZE = 100.0   # mm — terrain footprint (square)
+PRINT_SIZE = 150.0   # mm — terrain footprint (square)
 BASE_H     = 3.24     # mm — terrain base height (border sits here)
 
 BORDER_W   = 10.0    # mm — width of border apron on each side
