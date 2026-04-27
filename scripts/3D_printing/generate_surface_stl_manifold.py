@@ -36,7 +36,7 @@ except ImportError:
 DATA_CSV   = Path("runs/detect/tune_sweep_results/01_broad_musgd/tune_results.csv")
 OUTPUT_DIR = Path("stl_output")
 
-GRID_N     = 60      # grid resolution
+GRID_N     = 100      # grid resolution
 PRINT_SIZE = 150.0   # mm — square footprint
 BASE_H     = 3.24     # mm — solid base below lowest fitness point
 SURFACE_H  = 45.0    # mm — total height range mapped across fitness
@@ -44,7 +44,7 @@ N_BANDS    = 4       # number of color bands
 BORDER_W = 10.0      # mm — must match generate_border_stl.py
 
 DOT_EMBED  = 2.0     # mm — how far cylinders embed into terrain surface for clean boolean union
-DOT_R_MIN  = 1.0     # mm — radius of lowest-fitness dot
+DOT_R_MIN  = 1.0     # mm — radiioh[0898yus of lowest-fitness dot
 DOT_R_MAX  = 1.4     # mm — radius of highest-fitness dot (excluding best)
 PIN_R      = 2.0     # mm — radius of best-point pin (wider to stand out)
 PIN_H_MIN  = 1.0     # mm — pin height for lowest fitness point
